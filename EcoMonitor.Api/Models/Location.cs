@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace EcoMonitor.Api.Models;
 
 public class Location{
@@ -5,4 +7,5 @@ public class Location{
 	public string Name{get;set;}
 	public double Latitude{get;set;}
 	public double Longitude{get;set;}
+	public ICollection<Sensor> Sensors{get;set;}
 }
