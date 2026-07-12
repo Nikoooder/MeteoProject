@@ -10,11 +10,11 @@
         "projectUniqueName": "/home/gergel/project/MeteoProject/EcoMonitor.Api/EcoMonitor.Api.csproj",
         "projectName": "EcoMonitor.Api",
         "projectPath": "/home/gergel/project/MeteoProject/EcoMonitor.Api/EcoMonitor.Api.csproj",
-        "packagesPath": "/root/.nuget/packages/",
+        "packagesPath": "/home/gergel/.nuget/packages/",
         "outputPath": "/home/gergel/project/MeteoProject/EcoMonitor.Api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/root/.nuget/NuGet/NuGet.Config"
+          "/home/gergel/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -46,6 +46,12 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.28, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.*, )"
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
