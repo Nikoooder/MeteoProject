@@ -10,11 +10,11 @@
         "projectUniqueName": "/home/gergel/project/MeteoProject/EcoMonitor.Api/EcoMonitor.Api.csproj",
         "projectName": "EcoMonitor.Api",
         "projectPath": "/home/gergel/project/MeteoProject/EcoMonitor.Api/EcoMonitor.Api.csproj",
-        "packagesPath": "/home/gergel/.nuget/packages/",
+        "packagesPath": "/root/.nuget/packages/",
         "outputPath": "/home/gergel/project/MeteoProject/EcoMonitor.Api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/gergel/.nuget/NuGet/NuGet.Config"
+          "/root/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
