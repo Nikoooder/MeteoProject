@@ -18,154 +18,372 @@ interface Location {
 function Home() {
     const [locations, setLocations] = useState<Location[]>([]);
 
-    const [name, setName] = useState("");
-    const [latitude, setLatitude] = useState("");
-    const [longitude, setLongitude] = useState("");
+    const [newLocation, setNewLocation] = useState<Location>({
+        id: 0,
+        name: "",
+        latitude: 0,
+        longitude: 0,
+        sensors: []
+    });
+
+    const [sensorName, setSensorName] = useState("");
 
     const [error, setError] = useState("");
+
+
 
     async function loadLocations() {
         try {
             const response = await api.get("/api/Location");
 
-            console.log("GET response:", response.data);
+            const data: Location[] = response.data.map((item: any) => ({
+                ...item,
+                sensors: item.sensors ?? []
+            }));
 
-            setLocations(response.data);
+            console.log("Полученные локации:", data);
+
+            setLocations(data);
+
         } catch (err) {
-            console.error("GET error:", err);
+            console.error(err);
             setError("Не удалось загрузить локации");
         }
     }
+
+
 
     useEffect(() => {
         loadLocations();
     }, []);
 
-    async function addLocation() {
-        try {
-            const location = {
-                name,
-                latitude: Number(latitude),
-                longitude: Number(longitude),
-                sensors: []
+
+
+    function addSensor() {
+
+        if (!sensorName.trim()) {
+            return;
+        }
+
+
+        const sensor: Sensor = {
+            id: 0,
+            name: sensorName,
+            locationId: 0
+        };
+
+
+        setNewLocation(prev => {
+
+            const updated = {
+                ...prev,
+                sensors: [
+                    ...prev.sensors,
+                    sensor
+                ]
             };
 
-            console.log("Отправляем:", location);
 
-            const postResponse = await api.post(
-                "/api/Location",
-                location
+            console.log(
+                "Локация с сенсором:",
+                updated
             );
 
-            console.log("Ответ POST:", postResponse.data);
 
-            const getResponse = await api.get(
-                "/api/Location"
-            );
+            return updated;
+        });
 
-            console.log("Ответ GET после POST:", getResponse.data);
 
-            setLocations(getResponse.data);
-
-            setName("");
-            setLatitude("");
-            setLongitude("");
-
-        } catch (error) {
-            console.error(error);
-        }
+        setSensorName("");
     }
+
+
+
+    function removeSensor(index: number) {
+
+        setNewLocation(prev => ({
+            ...prev,
+            sensors: prev.sensors.filter(
+                (_, i) => i !== index
+            )
+        }));
+
+    }
+
+
+
+    async function addLocation() {
+
+        try {
+
+            console.log(
+                "POST отправка:",
+                newLocation
+            );
+
+
+            await api.post(
+                "/api/Location",
+                newLocation
+            );
+
+
+            await loadLocations();
+
+
+            setNewLocation({
+                id: 0,
+                name: "",
+                latitude: 0,
+                longitude: 0,
+                sensors: []
+            });
+
+
+            setError("");
+
+        } catch (err) {
+
+            console.error(err);
+            setError("Не удалось добавить локацию");
+
+        }
+
+    }
+
+
 
     return (
         <div
             style={{
                 padding: "30px",
-                fontFamily: "Arial, sans-serif"
+                fontFamily: "Arial"
             }}
         >
-            <h1>EcoMonitor</h1>
 
-            <h2>Добавить локацию</h2>
+            <h1>
+                EcoMonitor
+            </h1>
 
-            <div>
-                <input
-                    type="text"
-                    placeholder="Название"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-            </div>
 
-            <br />
+            <h2>
+                Добавить локацию
+            </h2>
 
-            <div>
-                <input
-                    type="number"
-                    placeholder="Широта"
-                    value={latitude}
-                    onChange={(e) => setLatitude(e.target.value)}
-                />
-            </div>
 
-            <br />
 
-            <div>
-                <input
-                    type="number"
-                    placeholder="Долгота"
-                    value={longitude}
-                    onChange={(e) => setLongitude(e.target.value)}
-                />
-            </div>
+            <input
+                type="text"
+                placeholder="Название"
+                value={newLocation.name}
+                onChange={(e) =>
+                    setNewLocation(prev => ({
+                        ...prev,
+                        name: e.target.value
+                    }))
+                }
+            />
 
-            <br />
 
-            <button onClick={addLocation}>
-                Добавить
+            <br /><br />
+
+
+
+            <input
+                type="number"
+                placeholder="Широта"
+                value={newLocation.latitude}
+                onChange={(e) =>
+                    setNewLocation(prev => ({
+                        ...prev,
+                        latitude: Number(e.target.value)
+                    }))
+                }
+            />
+
+
+            <br /><br />
+
+
+
+            <input
+                type="number"
+                placeholder="Долгота"
+                value={newLocation.longitude}
+                onChange={(e) =>
+                    setNewLocation(prev => ({
+                        ...prev,
+                        longitude: Number(e.target.value)
+                    }))
+                }
+            />
+
+
+
+            <h3>
+                Сенсоры
+            </h3>
+
+
+
+            <input
+                type="text"
+                placeholder="Название сенсора"
+                value={sensorName}
+                onChange={(e) =>
+                    setSensorName(e.target.value)
+                }
+            />
+
+
+
+            <button
+                type="button"
+                onClick={addSensor}
+                style={{
+                    marginLeft: "10px"
+                }}
+            >
+                Добавить сенсор
             </button>
 
-            {error && (
-                <p style={{ color: "red" }}>
-                    {error}
-                </p>
-            )}
+
+
+            {
+                newLocation.sensors.length > 0 &&
+                (
+                    <ul>
+
+                        {
+                            newLocation.sensors.map(
+                                (sensor, index) => (
+
+                                    <li key={index}>
+
+                                        {sensor.name}
+
+
+                                        <button
+                                            type="button"
+                                            style={{
+                                                marginLeft: "10px"
+                                            }}
+                                            onClick={() =>
+                                                removeSensor(index)
+                                            }
+                                        >
+                                            Удалить
+                                        </button>
+
+                                    </li>
+
+                                )
+                            )
+                        }
+
+                    </ul>
+                )
+            }
+
+
+
+            <br />
+
+
+            <button
+                type="button"
+                onClick={addLocation}
+            >
+                Добавить локацию
+            </button>
+
+
+
+            {
+                error &&
+                (
+                    <p style={{
+                        color: "red"
+                    }}>
+                        {error}
+                    </p>
+                )
+            }
+
+
 
             <hr />
 
-            <h2>Локации</h2>
 
-            {locations.length === 0 && (
-                <p>
-                    Локаций пока нет
-                </p>
-            )}
 
-            {locations.map((location) => (
-                <div
-                    key={location.id}
-                    style={{
-                        border: "1px solid #ccc",
-                        padding: "10px",
-                        marginBottom: "10px"
-                    }}
-                >
-                    <h3>
-                        {location.name}
-                    </h3>
+            <h2>
+                Локации
+            </h2>
 
-                    <p>
-                        Широта: {location.latitude}
-                    </p>
 
-                    <p>
-                        Долгота: {location.longitude}
-                    </p>
 
-                    <p>
-                        Сенсоры: {location.sensors?.length ?? 0}
-                    </p>
-                </div>
-            ))}
+            {
+                locations.map(location => (
+
+                    <div
+                        key={location.id}
+                        style={{
+                            border: "1px solid #ccc",
+                            padding: "10px",
+                            marginBottom: "10px"
+                        }}
+                    >
+
+                        <h3>
+                            {location.name}
+                        </h3>
+
+
+                        <p>
+                            Широта: {location.latitude}
+                        </p>
+
+
+                        <p>
+                            Долгота: {location.longitude}
+                        </p>
+
+
+
+                        <h4>
+                            Сенсоры:
+                        </h4>
+
+
+                        {
+                            location.sensors.length === 0
+                                ?
+                                <p>
+                                    Нет сенсоров
+                                </p>
+                                :
+                                <ul>
+
+                                    {
+                                        location.sensors.map(sensor => (
+
+                                            <li key={sensor.id}>
+                                                {sensor.name}
+                                            </li>
+
+                                        ))
+                                    }
+
+                                </ul>
+                        }
+
+
+                    </div>
+
+                ))
+            }
+
+
         </div>
     );
 }

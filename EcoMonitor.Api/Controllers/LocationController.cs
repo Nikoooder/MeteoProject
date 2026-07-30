@@ -13,8 +13,11 @@ public class LocationController:ControllerBase{
     }
 
     [HttpGet]
-    public async Task<List<Location>> GetAllAsync(){
-        return await _context.Locations.ToListAsync();
+    public async Task<List<Location>> GetAllAsync()
+    {
+        return await _context.Locations
+            .Include(x => x.Sensors)
+            .ToListAsync();
     }
 
     [HttpGet("{id}", Name = "GetLocation")]
