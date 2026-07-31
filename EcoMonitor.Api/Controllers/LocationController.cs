@@ -37,14 +37,79 @@ public class LocationController:ControllerBase{
         return CreatedAtRoute("GetLocation",new { id = location.Id },location);
     }
 
-    [HttpPut("{id}")]
+    //[HttpPut("{id}")] // Старый put
+    //public async Task<IActionResult> UpdateAsync(int id, Location location)
+    //{
+    //    if (id != location.Id)
+    //        return BadRequest();
+
+    //    _context.Entry(location).State = EntityState.Modified;
+    //    await _context.SaveChangesAsync();
+
+    //    return NoContent();
+    //}
+
+    [HttpPut("{id}")] // Измененный put
     public async Task<IActionResult> UpdateAsync(int id, Location location)
     {
         if (id != location.Id)
             return BadRequest();
 
-        _context.Entry(location).State = EntityState.Modified;
+
+        var existingLocation = await _context.Locations
+            .Include(x => x.Sensors)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+
+        if (existingLocation == null)
+            return NotFound();
+
+
+        // Обновляем данные локации
+        existingLocation.Name = location.Name;
+        existingLocation.Latitude = location.Latitude;
+        existingLocation.Longitude = location.Longitude;
+
+
+        // Удаляем сенсоры, которых больше нет
+        var sensorsToDelete = existingLocation.Sensors
+            .Where(oldSensor =>
+                !location.Sensors.Any(
+                    newSensor => newSensor.Id == oldSensor.Id
+                )
+            )
+            .ToList();
+
+
+        foreach (var sensor in sensorsToDelete)
+        {
+            _context.Sensors.Remove(sensor);
+        }
+
+
+        // Добавляем новые и обновляем существующие
+        foreach (var sensor in location.Sensors)
+        {
+            var existingSensor = existingLocation.Sensors
+                .FirstOrDefault(x => x.Id == sensor.Id);
+
+
+            if (existingSensor == null)
+            {
+                existingLocation.Sensors.Add(new Sensor
+                {
+                    Name = sensor.Name
+                });
+            }
+            else
+            {
+                existingSensor.Name = sensor.Name;
+            }
+        }
+
+
         await _context.SaveChangesAsync();
+
 
         return NoContent();
     }

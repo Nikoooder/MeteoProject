@@ -17,6 +17,7 @@ interface Location {
 
 function Home() {
     const [locations, setLocations] = useState<Location[]>([]);
+    const [editingLocation, setEditingLocation] = useState<Location | null>(null);
 
     const [newLocation, setNewLocation] = useState<Location>({
         id: 0,
@@ -36,7 +37,7 @@ function Home() {
         try {
             const response = await api.get("/api/Location");
 
-            const data: Location[] = response.data.map((item: any) => ({
+            const data = response.data.map((item) => ({
                 ...item,
                 sensors: item.sensors ?? []
             }));
@@ -51,10 +52,77 @@ function Home() {
         }
     }
 
+    async function updateLocation() {
+        if (!editingLocation) return;
+
+        try {
+            await api.put(
+                `/api/Location/${editingLocation.id}`,
+                editingLocation
+            );
+
+            await loadLocations();
+
+            setEditingLocation(null);
+
+        } catch (err) {
+            console.error(err);
+            setError("Не удалось обновить локацию");
+        }
+    }
+
+    function updateSensor(index: number, value: string) {
+        if (!editingLocation) return;
+
+        const updatedSensors = [...editingLocation.sensors];
+
+        updatedSensors[index] = {
+            ...updatedSensors[index],
+            name: value
+        };
+
+        setEditingLocation({
+            ...editingLocation,
+            sensors: updatedSensors
+        });
+    }
+
+
+    function addEditSensor() {
+        if (!editingLocation) return;
+
+        setEditingLocation({
+            ...editingLocation,
+            sensors: [
+                ...editingLocation.sensors,
+                {
+                    id: 0,
+                    name: "Новый сенсор",
+                    locationId: editingLocation.id
+                }
+            ]
+        });
+    }
+
+
+    function deleteEditSensor(index: number) {
+        if (!editingLocation) return;
+
+        setEditingLocation({
+            ...editingLocation,
+            sensors: editingLocation.sensors.filter(
+                (_, i) => i !== index
+            )
+        });
+    }
 
 
     useEffect(() => {
-        loadLocations();
+        const fetchLocations = async () => {
+            await loadLocations();
+        };
+
+        fetchLocations();
     }, []);
 
 
@@ -151,6 +219,17 @@ function Home() {
 
     }
 
+
+    async function deleteLocation(id: number) {
+        try {
+            await api.delete(`/api/Location/${id}`);
+
+            await loadLocations();
+        }
+        catch (err) {
+            console.error(err);
+        }
+    }
 
 
     return (
@@ -297,6 +376,114 @@ function Home() {
                 Добавить локацию
             </button>
 
+            {editingLocation && (
+                <div
+                    style={{
+                        border: "1px solid #999",
+                        padding: "15px",
+                        marginBottom: "20px"
+                    }}
+                >
+                    <h2>Редактирование локации</h2>
+
+                    <input
+                        type="text"
+                        value={editingLocation.name}
+                        placeholder="Название"
+                        onChange={(e) =>
+                            setEditingLocation({
+                                ...editingLocation,
+                                name: e.target.value
+                            })
+                        }
+                    />
+
+                    <br /><br />
+
+                    <input
+                        type="number"
+                        value={editingLocation.latitude}
+                        placeholder="Широта"
+                        onChange={(e) =>
+                            setEditingLocation({
+                                ...editingLocation,
+                                latitude: Number(e.target.value)
+                            })
+                        }
+                    />
+
+                    <br /><br />
+
+                    <input
+                        type="number"
+                        value={editingLocation.longitude}
+                        placeholder="Долгота"
+                        onChange={(e) =>
+                            setEditingLocation({
+                                ...editingLocation,
+                                longitude: Number(e.target.value)
+                            })
+                        }
+                    />
+
+                    <h3>Сенсоры</h3>
+
+                    <button
+                        type="button"
+                        onClick={addEditSensor}
+                    >
+                        Добавить сенсор
+                    </button>
+
+
+                    <ul>
+                        {
+                            editingLocation.sensors.map((sensor, index) => (
+                                <li key={index}>
+
+                                    <input
+                                        type="text"
+                                        value={sensor.name}
+                                        onChange={(e) =>
+                                            updateSensor(
+                                                index,
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+
+                                    <button
+                                        type="button"
+                                        style={{
+                                            marginLeft: "10px"
+                                        }}
+                                        onClick={() =>
+                                            deleteEditSensor(index)
+                                        }
+                                    >
+                                        Удалить
+                                    </button>
+
+                                </li>
+                            ))
+                        }
+                    </ul>
+
+                    <br /><br />
+
+                    <button onClick={updateLocation}>
+                        Сохранить
+                    </button>
+
+                    <button
+                        style={{ marginLeft: "10px" }}
+                        onClick={() => setEditingLocation(null)}
+                    >
+                        Отмена
+                    </button>
+                </div>
+            )}
 
 
             {
@@ -377,6 +564,23 @@ function Home() {
                                 </ul>
                         }
 
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setEditingLocation({
+                                    ...location
+                                })
+                            }
+                        >
+                            Редактировать локацию
+                        </button>
+
+                        <button
+                            onClick={() => deleteLocation(location.id)}
+                        >
+                            Удалить локацию
+                        </button>
+
 
                     </div>
 
@@ -385,7 +589,10 @@ function Home() {
 
 
         </div>
+
     );
+
+
 }
 
 export default Home;
