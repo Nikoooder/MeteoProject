@@ -2,8 +2,9 @@ using EcoMonitor.Api.Data;
 using EcoMonitor.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 namespace EcoMonitor.Api.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class LocationController:ControllerBase{
@@ -11,7 +12,7 @@ public class LocationController:ControllerBase{
     public LocationController(AppDbContext context){
         _context = context;
     }
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<List<Location>> GetAllAsync()
     {
@@ -19,7 +20,7 @@ public class LocationController:ControllerBase{
             .Include(x => x.Sensors)
             .ToListAsync();
     }
-
+    [AllowAnonymous]
     [HttpGet("{id}", Name = "GetLocation")]
     public async Task<ActionResult<Location>> GetByIdAsync(int id){
         var location = await _context.Locations.FindAsync(id);
@@ -29,6 +30,7 @@ public class LocationController:ControllerBase{
 
         return location;
     }
+    
     [HttpPost]
     public async Task<ActionResult<Location>> CreateAsync(Location location){
         _context.Locations.Add(location);
@@ -37,7 +39,7 @@ public class LocationController:ControllerBase{
         return CreatedAtRoute("GetLocation",new { id = location.Id },location);
     }
 
-    //[HttpPut("{id}")] // Старый put
+    //[HttpPut("{id}")] // пїЅпїЅпїЅпїЅпїЅпїЅ put
     //public async Task<IActionResult> UpdateAsync(int id, Location location)
     //{
     //    if (id != location.Id)
@@ -49,7 +51,7 @@ public class LocationController:ControllerBase{
     //    return NoContent();
     //}
 
-    [HttpPut("{id}")] // Измененный put
+    [HttpPut("{id}")] // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ put
     public async Task<IActionResult> UpdateAsync(int id, Location location)
     {
         if (id != location.Id)
@@ -65,13 +67,13 @@ public class LocationController:ControllerBase{
             return NotFound();
 
 
-        // Обновляем данные локации
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         existingLocation.Name = location.Name;
         existingLocation.Latitude = location.Latitude;
         existingLocation.Longitude = location.Longitude;
 
 
-        // Удаляем сенсоры, которых больше нет
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
         var sensorsToDelete = existingLocation.Sensors
             .Where(oldSensor =>
                 !location.Sensors.Any(
@@ -87,7 +89,7 @@ public class LocationController:ControllerBase{
         }
 
 
-        // Добавляем новые и обновляем существующие
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         foreach (var sensor in location.Sensors)
         {
             var existingSensor = existingLocation.Sensors

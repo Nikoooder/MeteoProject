@@ -4,7 +4,8 @@ using EcoMonitor.Api.DTO;
 using EcoMonitor.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using EcoMonitor.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 namespace EcoMonitor.Api.Controllers;
 
 [ApiController]
@@ -13,9 +14,12 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public AuthController(AppDbContext context)
+    private readonly JwtService _jwtService;
+
+    public AuthController(AppDbContext context, JwtService jwtService)
     {
         _context = context;
+        _jwtService = jwtService;
     }
 
     [HttpPost("register")]
@@ -30,7 +34,7 @@ public class AuthController : ControllerBase
         {
             Username = request.UserName,
             Email = request.Email,
-            Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
         };
 
         _context.Users.Add(user);
@@ -48,15 +52,16 @@ public class AuthController : ControllerBase
             return Unauthorized("Неверный Email или пароль.");
         }
 
-        bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
+        bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
 
         if (!isPasswordCorrect)
         {
             return Unauthorized("Неверный Email или пароль.");
         }
-
+        var token = _jwtService.GenerateToken(user);
         return Ok(new
         {
+            Token = token,
             Message = "Вход выполнен успешно.",
             User = new
             {
