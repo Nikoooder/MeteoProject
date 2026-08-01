@@ -1,0 +1,35 @@
+services:
+
+  postgres:
+    image: postgres:17
+
+    container_name: ecomonitor-db
+
+    environment:
+      POSTGRES_DB: ecomonitor
+      POSTGRES_USER: ecomonitor_user
+      POSTGRES_PASSWORD: meteo
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./EcoMonitor.Api
+
+    container_name: ecomonitor-api
+
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=ecomonitor;Username=ecomonitor_user;Password=meteo"
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
