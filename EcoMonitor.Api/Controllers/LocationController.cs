@@ -23,7 +23,6 @@ public class LocationController:ControllerBase{
     }
 
 
-    [AllowAnonymous]
     [HttpGet("{id}", Name = "GetLocation")]
     public async Task<ActionResult<Location>> GetByIdAsync(int id){
         var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == id &&l.UserId == CurrentUserId);
