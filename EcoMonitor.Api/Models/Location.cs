@@ -6,5 +6,10 @@ public class Location
     public string Name { get; set; } = string.Empty;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-    public ICollection<Sensor> Sensors { get; set; } = new List<Sensor>();
+
+    public int UserId { get; set; }
+
+    public User User { get; set; } = null!;
+
+    //public ICollection<Sensor> Sensors { get; set; } = new List<Sensor>();
 }

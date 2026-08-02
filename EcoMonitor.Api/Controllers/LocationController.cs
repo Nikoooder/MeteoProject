@@ -3,6 +3,8 @@ using EcoMonitor.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using EcoMonitor.Api.DTO;
 namespace EcoMonitor.Api.Controllers;
 [Authorize]
 [ApiController]
@@ -12,46 +14,43 @@ public class LocationController:ControllerBase{
     public LocationController(AppDbContext context){
         _context = context;
     }
-    [AllowAnonymous]
+
+    private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     [HttpGet]
     public async Task<List<Location>> GetAllAsync()
     {
-        return await _context.Locations
-            .Include(x => x.Sensors)
-            .ToListAsync();
+        return await _context.Locations.Where(l => l.UserId == CurrentUserId).ToListAsync();
     }
+
+
     [AllowAnonymous]
     [HttpGet("{id}", Name = "GetLocation")]
     public async Task<ActionResult<Location>> GetByIdAsync(int id){
-        var location = await _context.Locations.FindAsync(id);
+        var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == id &&l.UserId == CurrentUserId);
 
         if (location == null)
             return NotFound();
 
         return location;
     }
-    
+
     [HttpPost]
-    public async Task<ActionResult<Location>> CreateAsync(Location location){
+    public async Task<ActionResult<Location>> CreateAsync(CreateLocationRequest request){
+        var location = new Location
+        {
+            Name = request.Name,
+            Latitude = request.Latitude,
+            Longitude = request.Longitude,
+            UserId = CurrentUserId
+        };
+
         _context.Locations.Add(location);
+
         await _context.SaveChangesAsync();
 
-        return CreatedAtRoute("GetLocation",new { id = location.Id },location);
+        return Ok(location);
     }
-
-    //[HttpPut("{id}")] // ������ put
-    //public async Task<IActionResult> UpdateAsync(int id, Location location)
-    //{
-    //    if (id != location.Id)
-    //        return BadRequest();
-
-    //    _context.Entry(location).State = EntityState.Modified;
-    //    await _context.SaveChangesAsync();
-
-    //    return NoContent();
-    //}
-
-    [HttpPut("{id}")] // ���������� put
+    /* [HttpPut("{id}")] // ���������� put
     public async Task<IActionResult> UpdateAsync(int id, Location location)
     {
         if (id != location.Id)
@@ -114,12 +113,32 @@ public class LocationController:ControllerBase{
 
 
         return NoContent();
+    } */
+
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateAsync(int id, UpdateLocationRequest request)
+    {
+        var location = await _context.Locations
+            .FirstOrDefaultAsync(l => l.Id == id && l.UserId == CurrentUserId);
+
+        if (location == null)
+            return NotFound();
+
+        location.Name = request.Name;
+        location.Latitude = request.Latitude;
+        location.Longitude = request.Longitude;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 
+    
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(int id)
     {
-        var location = await _context.Locations.FindAsync(id);
+        var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == id &&l.UserId == CurrentUserId);
 
         if (location == null)
             return NotFound();
