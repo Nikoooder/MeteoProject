@@ -9,7 +9,5 @@ public class Location
 
     public int UserId { get; set; }
 
-    public User User { get; set; } = null!;
-
     //public ICollection<Sensor> Sensors { get; set; } = new List<Sensor>();
 }

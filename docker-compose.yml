@@ -23,6 +23,7 @@ services:
     container_name: ecomonitor-api
 
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=ecomonitor;Username=ecomonitor_user;Password=meteo"
 
     ports:
