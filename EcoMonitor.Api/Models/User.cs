@@ -3,8 +3,7 @@ namespace EcoMonitor.Api.Models;
 public class User
 {
 	public int Id{get;set;}
-	public string Username{get;set;} = string.Empty;
-	public string Email{get;set;}=string.Empty;
-	public string PasswordHash{get;set;}=string.Empty;
-	//Need to add collection of measurements later
+	public string Username{get;set;} = null!;
+	public string Email{get;set;}= null!;
+	public string PasswordHash{get;set;}=null!;
 }
