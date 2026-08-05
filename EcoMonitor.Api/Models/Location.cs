@@ -9,5 +9,5 @@ public class Location
 
     public int UserId { get; set; }
 
-    //public ICollection<Sensor> Sensors { get; set; } = new List<Sensor>();
+    public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
 }
