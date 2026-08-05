@@ -54,6 +54,8 @@ public class LocationController:ControllerBase{
             var measurement = new Measurement
             {
                 LocationId = location.Id,
+                Comment = request.Measurement.Comment,
+                SensorName = request.Measurement.SensorName,
 
                 O2 = request.Measurement.O2,
                 CO = request.Measurement.CO,
@@ -154,51 +156,54 @@ public class LocationController:ControllerBase{
 
         // Таблица Measurements
         int headerRow = 7;
-
-        worksheet.Cell(headerRow, 1).Value = "O2";
-        worksheet.Cell(headerRow, 2).Value = "CO";
-        worksheet.Cell(headerRow, 3).Value = "SO2";
-        worksheet.Cell(headerRow, 4).Value = "NO";
-        worksheet.Cell(headerRow, 5).Value = "CH";
-        worksheet.Cell(headerRow, 6).Value = "CO2";
-        worksheet.Cell(headerRow, 7).Value = "NO2";
-        worksheet.Cell(headerRow, 8).Value = "H2CO";
-        worksheet.Cell(headerRow, 9).Value = "PM25";
-        worksheet.Cell(headerRow, 10).Value = "PM10";
-        worksheet.Cell(headerRow, 11).Value = "TVOC";
-        worksheet.Cell(headerRow, 12).Value = "WindSpeed";
-        worksheet.Cell(headerRow, 13).Value = "WindDirection";
-        worksheet.Cell(headerRow, 14).Value = "MeasurementTime";
-        worksheet.Cell(headerRow, 15).Value = "Humidity";
-        worksheet.Cell(headerRow, 16).Value = "AtmosphericPressure";
-        worksheet.Cell(headerRow, 17).Value = "Precipitation";
-        worksheet.Cell(headerRow, 18).Value = "PrecipitationPerHour";
-        worksheet.Cell(headerRow, 19).Value = "AirTemperature";
+        worksheet.Cell(headerRow, 1).Value = "Comment";
+        worksheet.Cell(headerRow, 2).Value = "Sensor";
+        worksheet.Cell(headerRow, 3).Value = "O2";
+        worksheet.Cell(headerRow, 4).Value = "CO";
+        worksheet.Cell(headerRow, 5).Value = "SO2";
+        worksheet.Cell(headerRow, 6).Value = "NO";
+        worksheet.Cell(headerRow, 7).Value = "CH";
+        worksheet.Cell(headerRow, 8).Value = "CO2";
+        worksheet.Cell(headerRow, 9).Value = "NO2";
+        worksheet.Cell(headerRow, 10).Value = "H2CO";
+        worksheet.Cell(headerRow, 11).Value = "PM25";
+        worksheet.Cell(headerRow, 12).Value = "PM10";
+        worksheet.Cell(headerRow, 13).Value = "TVOC";
+        worksheet.Cell(headerRow, 14).Value = "WindSpeed";
+        worksheet.Cell(headerRow, 15).Value = "WindDirection";
+        worksheet.Cell(headerRow, 16).Value = "MeasurementTime";
+        worksheet.Cell(headerRow, 17).Value = "Humidity";
+        worksheet.Cell(headerRow, 18).Value = "AtmosphericPressure";
+        worksheet.Cell(headerRow, 19).Value = "Precipitation";
+        worksheet.Cell(headerRow, 20).Value = "PrecipitationPerHour";
+        worksheet.Cell(headerRow, 21).Value = "AirTemperature";
 
 
         int row = headerRow + 1;
 
         foreach (var measurement in location.Measurements)
         {
-            worksheet.Cell(row, 1).Value = measurement.O2;
-            worksheet.Cell(row, 2).Value = measurement.CO;
-            worksheet.Cell(row, 3).Value = measurement.SO2;
-            worksheet.Cell(row, 4).Value = measurement.NO;
-            worksheet.Cell(row, 5).Value = measurement.CH;
-            worksheet.Cell(row, 6).Value = measurement.CO2;
-            worksheet.Cell(row, 7).Value = measurement.NO2;
-            worksheet.Cell(row, 8).Value = measurement.H2CO;
-            worksheet.Cell(row, 9).Value = measurement.PM25;
-            worksheet.Cell(row, 10).Value = measurement.PM10;
-            worksheet.Cell(row, 11).Value = measurement.TVOC;
-            worksheet.Cell(row, 12).Value = measurement.WindSpeed;
-            worksheet.Cell(row, 13).Value = measurement.WindDirection;
-            worksheet.Cell(row, 14).Value = measurement.MeasurementTime;
-            worksheet.Cell(row, 15).Value = measurement.Humidity;
-            worksheet.Cell(row, 16).Value = measurement.AtmosphericPressure;
-            worksheet.Cell(row, 17).Value = measurement.Precipitation;
-            worksheet.Cell(row, 18).Value = measurement.PrecipitationPerHour;
-            worksheet.Cell(row, 19).Value = measurement.AirTemperature;
+            worksheet.Cell(row, 1).Value = measurement.Comment;
+            worksheet.Cell(row, 2).Value = measurement.SensorName;
+            worksheet.Cell(row, 3).Value = measurement.O2;
+            worksheet.Cell(row, 4).Value = measurement.CO;
+            worksheet.Cell(row, 5).Value = measurement.SO2;
+            worksheet.Cell(row, 6).Value = measurement.NO;
+            worksheet.Cell(row, 7).Value = measurement.CH;
+            worksheet.Cell(row, 8).Value = measurement.CO2;
+            worksheet.Cell(row, 9).Value = measurement.NO2;
+            worksheet.Cell(row, 10).Value = measurement.H2CO;
+            worksheet.Cell(row, 11).Value = measurement.PM25;
+            worksheet.Cell(row, 12).Value = measurement.PM10;
+            worksheet.Cell(row, 13).Value = measurement.TVOC;
+            worksheet.Cell(row, 14).Value = measurement.WindSpeed;
+            worksheet.Cell(row, 15).Value = measurement.WindDirection;
+            worksheet.Cell(row, 16).Value = measurement.MeasurementTime;
+            worksheet.Cell(row, 17).Value = measurement.Humidity;
+            worksheet.Cell(row, 18).Value = measurement.AtmosphericPressure;
+            worksheet.Cell(row, 19).Value = measurement.Precipitation;
+            worksheet.Cell(row, 20).Value = measurement.PrecipitationPerHour;
+            worksheet.Cell(row, 21).Value = measurement.AirTemperature;
 
             row++;
         }
@@ -228,9 +233,6 @@ public class LocationController:ControllerBase{
 
         var worksheet = workbook.Worksheet("Location");
 
-        // =========================
-        // LOCATION
-        // =========================
 
         var name = worksheet.Cell(2, 2).GetValue<string>();
         var latitude = worksheet.Cell(3, 2).GetValue<double>();
@@ -239,7 +241,6 @@ public class LocationController:ControllerBase{
         if (string.IsNullOrWhiteSpace(name))
             return BadRequest("Location name is empty.");
 
-        // Ищем существующую Location
         var location = await _context.Locations
             .FirstOrDefaultAsync(l =>
                 l.UserId == CurrentUserId &&
@@ -247,7 +248,7 @@ public class LocationController:ControllerBase{
                 l.Latitude == latitude &&
                 l.Longitude == longitude);
 
-        // Если Location не существует — создаём
+
         if (location == null)
         {
             location = new Location
@@ -260,23 +261,18 @@ public class LocationController:ControllerBase{
 
             _context.Locations.Add(location);
 
-            // Получаем Id новой Location
             await _context.SaveChangesAsync();
         }
 
-        // =========================
-        // MEASUREMENTS
-        // =========================
 
         int row = 8;
         int measurementsCount = 0;
 
         while (!worksheet.Cell(row, 1).IsEmpty())
         {
-            // Excel возвращает DateTime с Kind = Unspecified.
-            // PostgreSQL timestamp with time zone требует UTC.
+
             var measurementTime = worksheet
-                .Cell(row, 14)
+                .Cell(row, 16)
                 .GetValue<DateTime?>();
 
             if (measurementTime.HasValue)
@@ -292,31 +288,34 @@ public class LocationController:ControllerBase{
                 CreatorId = CurrentUserId,
                 CreationDate = DateTime.UtcNow,
 
-                O2 = worksheet.Cell(row, 1).GetValue<double?>(),
-                CO = worksheet.Cell(row, 2).GetValue<double?>(),
-                SO2 = worksheet.Cell(row, 3).GetValue<double?>(),
-                NO = worksheet.Cell(row, 4).GetValue<double?>(),
-                CH = worksheet.Cell(row, 5).GetValue<double?>(),
-                CO2 = worksheet.Cell(row, 6).GetValue<double?>(),
-                NO2 = worksheet.Cell(row, 7).GetValue<double?>(),
-                H2CO = worksheet.Cell(row, 8).GetValue<double?>(),
+                Comment = worksheet.Cell(row, 1).GetValue<string>(),
+                SensorName = worksheet.Cell(row, 2).GetValue<string>(),
 
-                PM25 = worksheet.Cell(row, 9).GetValue<double?>(),
-                PM10 = worksheet.Cell(row, 10).GetValue<double?>(),
-                TVOC = worksheet.Cell(row, 11).GetValue<double?>(),
+                O2 = worksheet.Cell(row, 3).GetValue<double?>(),
+                CO = worksheet.Cell(row, 4).GetValue<double?>(),
+                SO2 = worksheet.Cell(row, 5).GetValue<double?>(),
+                NO = worksheet.Cell(row, 6).GetValue<double?>(),
+                CH = worksheet.Cell(row, 7).GetValue<double?>(),
+                CO2 = worksheet.Cell(row, 8).GetValue<double?>(),
+                NO2 = worksheet.Cell(row, 9).GetValue<double?>(),
+                H2CO = worksheet.Cell(row, 10).GetValue<double?>(),
 
-                WindSpeed = worksheet.Cell(row, 12).GetValue<double?>(),
-                WindDirection = worksheet.Cell(row, 13).GetValue<string>(),
+                PM25 = worksheet.Cell(row, 11).GetValue<double?>(),
+                PM10 = worksheet.Cell(row, 12).GetValue<double?>(),
+                TVOC = worksheet.Cell(row, 13).GetValue<double?>(),
+
+                WindSpeed = worksheet.Cell(row, 14).GetValue<double?>(),
+                WindDirection = worksheet.Cell(row, 15).GetValue<string>(),
 
                 MeasurementTime = measurementTime,
 
-                Humidity = worksheet.Cell(row, 15).GetValue<double?>(),
-                AtmosphericPressure = worksheet.Cell(row, 16).GetValue<double?>(),
+                Humidity = worksheet.Cell(row, 17).GetValue<double?>(),
+                AtmosphericPressure = worksheet.Cell(row, 18).GetValue<double?>(),
 
-                Precipitation = worksheet.Cell(row, 17).GetValue<double?>(),
-                PrecipitationPerHour = worksheet.Cell(row, 18).GetValue<double?>(),
+                Precipitation = worksheet.Cell(row, 19).GetValue<double?>(),
+                PrecipitationPerHour = worksheet.Cell(row, 20).GetValue<double?>(),
 
-                AirTemperature = worksheet.Cell(row, 19).GetValue<double?>()
+                AirTemperature = worksheet.Cell(row, 21).GetValue<double?>()
             };
 
             _context.Measurements.Add(measurement);
