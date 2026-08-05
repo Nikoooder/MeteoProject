@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace EcoMonitor.Api.Models;
 
 public class Measurement
