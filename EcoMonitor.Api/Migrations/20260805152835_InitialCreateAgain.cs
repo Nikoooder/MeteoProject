@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EcoMonitor.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCreateAgain : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,6 +52,8 @@ namespace EcoMonitor.Api.Migrations
                     CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LocationId = table.Column<int>(type: "integer", nullable: false),
                     CreatorId = table.Column<int>(type: "integer", nullable: false),
+                    Comment = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: false),
+                    SensorName = table.Column<string>(type: "text", nullable: false),
                     O2 = table.Column<double>(type: "double precision", nullable: true),
                     CO = table.Column<double>(type: "double precision", nullable: true),
                     SO2 = table.Column<double>(type: "double precision", nullable: true),

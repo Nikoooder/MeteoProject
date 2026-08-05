@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EcoMonitor.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260805123858_NewFieldsInMeasurementWereAdded")]
-    partial class NewFieldsInMeasurementWereAdded
+    [Migration("20260805152835_InitialCreateAgain")]
+    partial class InitialCreateAgain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,6 +68,9 @@ namespace EcoMonitor.Api.Migrations
                     b.Property<double?>("CH")
                         .HasColumnType("double precision");
 
+                    b.Property<double?>("CO")
+                        .HasColumnType("double precision");
+
                     b.Property<double?>("CO2")
                         .HasColumnType("double precision");
 
@@ -76,19 +79,28 @@ namespace EcoMonitor.Api.Migrations
                         .HasMaxLength(400)
                         .HasColumnType("character varying(400)");
 
-                    b.Property<DateTimeOffset>("CreationDate")
+                    b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("integer");
 
                     b.Property<double?>("H2CO")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("HumidityPercentage")
+                    b.Property<double?>("Humidity")
                         .HasColumnType("double precision");
 
                     b.Property<int>("LocationId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("MeasurementTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<double?>("NO")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("NO2")
                         .HasColumnType("double precision");
 
                     b.Property<double?>("O2")
@@ -97,27 +109,27 @@ namespace EcoMonitor.Api.Migrations
                     b.Property<double?>("PM10")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("PM2_5")
+                    b.Property<double?>("PM25")
                         .HasColumnType("double precision");
 
                     b.Property<double?>("Precipitation")
                         .HasColumnType("double precision");
 
+                    b.Property<double?>("PrecipitationPerHour")
+                        .HasColumnType("double precision");
+
                     b.Property<double?>("SO2")
                         .HasColumnType("double precision");
 
-                    b.Property<string>("Sensor")
+                    b.Property<string>("SensorName")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<double?>("TVOC")
                         .HasColumnType("double precision");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("WindDirectionDegrees")
-                        .HasColumnType("double precision");
+                    b.Property<string>("WindDirection")
+                        .HasColumnType("text");
 
                     b.Property<double?>("WindSpeed")
                         .HasColumnType("double precision");

@@ -71,6 +71,11 @@ namespace EcoMonitor.Api.Migrations
                     b.Property<double?>("CO2")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -112,6 +117,10 @@ namespace EcoMonitor.Api.Migrations
 
                     b.Property<double?>("SO2")
                         .HasColumnType("double precision");
+
+                    b.Property<string>("SensorName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<double?>("TVOC")
                         .HasColumnType("double precision");
