@@ -17,7 +17,8 @@ public class LocationController:ControllerBase{
     }
 
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    [HttpGet]
+    /* [HttpGet]
+    [AllowAnonymous]
     public async Task<List<Location>> GetAllAsync()
     {
         return await _context.Locations.Where(l => l.UserId == CurrentUserId).ToListAsync();
@@ -27,6 +28,26 @@ public class LocationController:ControllerBase{
     [HttpGet("{id}", Name = "GetLocation")]
     public async Task<ActionResult<Location>> GetByIdAsync(int id){
         var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == id &&l.UserId == CurrentUserId);
+
+        if (location == null)
+            return NotFound();
+
+        return location;
+    } */
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<List<Location>> GetAllAsync()
+    {
+        return await _context.Locations
+            .ToListAsync();
+    }
+    [HttpGet("{id}", Name = "GetLocation")]
+    [AllowAnonymous]
+    public async Task<ActionResult<Location>> GetByIdAsync(int id)
+    {
+        var location = await _context.Locations
+            .FirstOrDefaultAsync(l => l.Id == id);
 
         if (location == null)
             return NotFound();

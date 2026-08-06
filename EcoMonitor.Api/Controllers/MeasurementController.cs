@@ -132,4 +132,139 @@ public class MeasurementController :ControllerBase{
 
         return NoContent();
     }
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<MeasurementResponse>>> GetAllAsync()
+    {
+        var measurements = await _context.Measurements
+            .Select(m => new MeasurementResponse
+            {
+                Id = m.Id,
+                LocationId = m.LocationId,
+                SensorName = m.SensorName,
+                Comment = m.Comment,
+
+                O2 = m.O2,
+                CO = m.CO,
+                SO2 = m.SO2,
+                NO = m.NO,
+                CH = m.CH,
+                CO2 = m.CO2,
+                NO2 = m.NO2,
+                H2CO = m.H2CO,
+
+                PM25 = m.PM25,
+                PM10 = m.PM10,
+                TVOC = m.TVOC,
+
+                WindSpeed = m.WindSpeed,
+                WindDirection = m.WindDirection,
+
+                CreationDate = m.CreationDate,
+                MeasurementTime = m.MeasurementTime,
+
+                Humidity = m.Humidity,
+                AtmosphericPressure = m.AtmosphericPressure,
+
+                Precipitation = m.Precipitation,
+                PrecipitationPerHour = m.PrecipitationPerHour,
+
+                AirTemperature = m.AirTemperature
+            })
+            .ToListAsync();
+
+        return Ok(measurements);
+    }
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<MeasurementResponse>> GetByIdAsync(int id)
+    {
+        var measurement = await _context.Measurements
+            .Where(m => m.Id == id)
+            .Select(m => new MeasurementResponse
+            {
+                Id = m.Id,
+                LocationId = m.LocationId,
+                SensorName = m.SensorName,
+                Comment = m.Comment,
+
+                O2 = m.O2,
+                CO = m.CO,
+                SO2 = m.SO2,
+                NO = m.NO,
+                CH = m.CH,
+                CO2 = m.CO2,
+                NO2 = m.NO2,
+                H2CO = m.H2CO,
+
+                PM25 = m.PM25,
+                PM10 = m.PM10,
+                TVOC = m.TVOC,
+
+                WindSpeed = m.WindSpeed,
+                WindDirection = m.WindDirection,
+
+                CreationDate = m.CreationDate,
+                MeasurementTime = m.MeasurementTime,
+
+                Humidity = m.Humidity,
+                AtmosphericPressure = m.AtmosphericPressure,
+
+                Precipitation = m.Precipitation,
+                PrecipitationPerHour = m.PrecipitationPerHour,
+
+                AirTemperature = m.AirTemperature
+            })
+            .FirstOrDefaultAsync();
+
+        if (measurement == null)
+            return NotFound();
+
+        return Ok(measurement);
+    }
+    [HttpGet("location/{locationId}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<MeasurementResponse>>> GetByLocationAsync(
+        int locationId)
+    {
+        var measurements = await _context.Measurements
+            .Where(m => m.LocationId == locationId)
+            .Select(m => new MeasurementResponse
+            {
+                Id = m.Id,
+                LocationId = m.LocationId,
+                SensorName = m.SensorName,
+                Comment = m.Comment,
+
+                O2 = m.O2,
+                CO = m.CO,
+                SO2 = m.SO2,
+                NO = m.NO,
+                CH = m.CH,
+                CO2 = m.CO2,
+                NO2 = m.NO2,
+                H2CO = m.H2CO,
+
+                PM25 = m.PM25,
+                PM10 = m.PM10,
+                TVOC = m.TVOC,
+
+                WindSpeed = m.WindSpeed,
+                WindDirection = m.WindDirection,
+
+                CreationDate = m.CreationDate,
+                MeasurementTime = m.MeasurementTime,
+
+                Humidity = m.Humidity,
+                AtmosphericPressure = m.AtmosphericPressure,
+
+                Precipitation = m.Precipitation,
+                PrecipitationPerHour = m.PrecipitationPerHour,
+
+                AirTemperature = m.AirTemperature
+            })
+            .ToListAsync();
+
+        return Ok(measurements);
+    }
 }
