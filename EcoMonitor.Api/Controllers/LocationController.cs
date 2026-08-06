@@ -37,9 +37,19 @@ public class LocationController:ControllerBase{
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<List<Location>> GetAllAsync()
-    {
-        return await _context.Locations.ToListAsync();
+    public async Task<List<Location>> GetAllAsync(string? search = null, string? sortBy = null, string? sortOrder = null){
+        var query = _context.Locations.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(l => l.Name.ToLower().Contains(search.ToLower()));
+
+        if (sortBy == "name")
+            query = sortOrder == "desc" ? query.OrderByDescending(l => l.Name) : query.OrderBy(l => l.Name);
+
+        if (sortBy == "creationDate")
+            query = sortOrder == "desc" ? query.OrderByDescending(l => l.CreationDate) : query.OrderBy(l => l.CreationDate);
+
+        return await query.ToListAsync();
     }
     [HttpGet("{id}", Name = "GetLocation")]
     [AllowAnonymous]
