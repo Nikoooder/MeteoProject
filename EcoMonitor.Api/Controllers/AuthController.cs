@@ -10,59 +10,78 @@ namespace EcoMonitor.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
-{
+public class AuthController : ControllerBase{
     private readonly AppDbContext _context;
 
     private readonly JwtService _jwtService;
 
-    public AuthController(AppDbContext context, JwtService jwtService)
-    {
+    public AuthController(AppDbContext context, JwtService jwtService){
         _context = context;
         _jwtService = jwtService;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
-    {
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
-        {
-            return BadRequest("Пользователь с таким Email уже существует.");
+    [AllowAnonymous]
+    public async Task<IActionResult> Register(RegisterRequest request){
+        if (string.IsNullOrWhiteSpace(request.Email))
+            return BadRequest("Email cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+            return BadRequest("Password cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(request.Username))
+            return BadRequest("Username cannot be empty.");
+
+        if (!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(request.Email)){
+            return BadRequest("Invalid email format.");
+        }
+        var email = request.Email.Trim();
+
+        var existingUser = await _context.Users.AnyAsync(u => u.Email == email);
+
+        if (existingUser){
+            return BadRequest("User with this email already exists.");
         }
 
-        var user = new User
-        {
-            Username = request.UserName,
-            Email = request.Email,
+        var user = new User{
+            Username = request.Username.Trim(),
+            Email = email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
         };
 
         _context.Users.Add(user);
+
         await _context.SaveChangesAsync();
 
-        return Ok("Регистрация прошла успешно.");
+        return Ok("Registration successful.");
     }
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        if (string.IsNullOrWhiteSpace(request.Email))
+            return BadRequest("Email cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+            return BadRequest("Password cannot be empty.");
+
+        var email = request.Email.Trim();
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
-        {
-            return Unauthorized("Неверный Email или пароль.");
-        }
+            return Unauthorized("Invalid email or password.");
 
-        bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        var passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
 
-        if (!isPasswordCorrect)
-        {
-            return Unauthorized("Неверный Email или пароль.");
-        }
+        if (!passwordValid)
+            return Unauthorized("Invalid email or password.");
+
         var token = _jwtService.GenerateToken(user);
-        return Ok(new
-        {
+
+        return Ok(new{
             Token = token,
-            Message = "Вход выполнен успешно.",
+            Message = "Authorization successfull.",
             User = new
             {
                 user.Id,

@@ -19,8 +19,7 @@ public class MeasurementController :ControllerBase{
 
     [HttpPost("{locationId}/measurements")]
     public async Task<ActionResult<Measurement>> CreateMeasurementAsync(int locationId,CreateMeasurementRequest request){
-    var location = await _context.Locations
-        .FindAsync(locationId);
+    var location = await _context.Locations.FindAsync(locationId);
 
     if (location == null)
         return NotFound("Location not found");
@@ -62,16 +61,12 @@ public class MeasurementController :ControllerBase{
     }
     [HttpPut("{id}")]
     public async Task<ActionResult<Measurement>> UpdateMeasurementAsync(int id,CreateMeasurementRequest request){
-        var measurement = await _context.Measurements
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id);
 
         if (measurement == null)
             return NotFound("Measurement not found");
 
-        var location = await _context.Locations
-            .FirstOrDefaultAsync(l =>
-                l.Id == measurement.LocationId &&
-                l.UserId == CurrentUserId);
+        var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == measurement.LocationId &&l.UserId == CurrentUserId);
 
         if (location == null)
             return NotFound("Measurement not found");
@@ -112,16 +107,12 @@ public class MeasurementController :ControllerBase{
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteMeasurementAsync(int id)
     {
-        var measurement = await _context.Measurements
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id);
 
         if (measurement == null)
             return NotFound("Measurement not found");
 
-        var location = await _context.Locations
-            .FirstOrDefaultAsync(l =>
-                l.Id == measurement.LocationId &&
-                l.UserId == CurrentUserId);
+        var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == measurement.LocationId &&l.UserId == CurrentUserId);
 
         if (location == null)
             return NotFound("Measurement not found");
