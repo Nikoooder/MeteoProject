@@ -31,6 +31,28 @@ services:
 
     depends_on:
       - postgres
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ecomonitor_pgadmin
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: tutunberg@eco.com
+      PGADMIN_DEFAULT_PASSWORD: meteo
+      PGADMIN_CONFIG_SERVER_MODEL: "False"
+
+    ports:
+      - "1488:80"
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+      - ./pgadmin/pgpass:/pgpass
+
+    depends_on:
+      - postgres
+
 
 volumes:
   postgres_data:
+  pgadmin_data:
