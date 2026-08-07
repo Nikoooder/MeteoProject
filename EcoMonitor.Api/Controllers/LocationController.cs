@@ -37,17 +37,25 @@ public class LocationController:ControllerBase{
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<List<Location>> GetAllAsync()
-    {
-        return await _context.Locations
-            .ToListAsync();
+    public async Task<List<Location>> GetAllAsync(string? search = null, string? sortBy = null, string? sortOrder = null){
+        var query = _context.Locations.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(l => l.Name.ToLower().Contains(search.ToLower()));
+
+        if (sortBy == "name")
+            query = sortOrder == "desc" ? query.OrderByDescending(l => l.Name) : query.OrderBy(l => l.Name);
+
+        if (sortBy == "creationDate")
+            query = sortOrder == "desc" ? query.OrderByDescending(l => l.CreationDate) : query.OrderBy(l => l.CreationDate);
+
+        return await query.ToListAsync();
     }
     [HttpGet("{id}", Name = "GetLocation")]
     [AllowAnonymous]
     public async Task<ActionResult<Location>> GetByIdAsync(int id)
     {
-        var location = await _context.Locations
-            .FirstOrDefaultAsync(l => l.Id == id);
+        var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id);
 
         if (location == null)
             return NotFound();
@@ -58,8 +66,7 @@ public class LocationController:ControllerBase{
     [HttpPost]
     public async Task<ActionResult<Location>> CreateAsync(CreateLocationRequest request)
     {
-        var location = new Location
-        {
+        var location = new Location{
             Name = request.Name,
             Latitude = request.Latitude,
             Longitude = request.Longitude,
@@ -70,10 +77,8 @@ public class LocationController:ControllerBase{
 
         await _context.SaveChangesAsync();
 
-        if (request.Measurement != null)
-        {
-            var measurement = new Measurement
-            {
+        if (request.Measurement != null){
+            var measurement = new Measurement{
                 LocationId = location.Id,
                 Comment = request.Measurement.Comment,
                 SensorName = request.Measurement.SensorName,
@@ -116,8 +121,7 @@ public class LocationController:ControllerBase{
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAsync(int id, UpdateLocationRequest request)
     {
-        var location = await _context.Locations
-            .FirstOrDefaultAsync(l => l.Id == id && l.UserId == CurrentUserId);
+        var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id && l.UserId == CurrentUserId);
 
         if (location == null)
             return NotFound();
@@ -150,11 +154,7 @@ public class LocationController:ControllerBase{
     [HttpGet("{id}/export")]
     public async Task<IActionResult> ExportAsync(int id)
     {
-        var location = await _context.Locations
-            .Include(l => l.Measurements)
-            .FirstOrDefaultAsync(l =>
-                l.Id == id &&
-                l.UserId == CurrentUserId);
+        var location = await _context.Locations.Include(l => l.Measurements).FirstOrDefaultAsync(l =>l.Id == id &&l.UserId == CurrentUserId);
 
         if (location == null)
             return NotFound();
@@ -235,10 +235,7 @@ public class LocationController:ControllerBase{
 
         workbook.SaveAs(stream);
 
-        return File(
-            stream.ToArray(),
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            $"{location.Name}.xlsx");
+        return File(stream.ToArray(),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",$"{location.Name}.xlsx");
     }
     [HttpPost("import")]
     public async Task<IActionResult> ImportAsync(IFormFile file)
@@ -262,8 +259,7 @@ public class LocationController:ControllerBase{
         if (string.IsNullOrWhiteSpace(name))
             return BadRequest("Location name is empty.");
 
-        var location = await _context.Locations
-            .FirstOrDefaultAsync(l =>
+        var location = await _context.Locations.FirstOrDefaultAsync(l =>
                 l.UserId == CurrentUserId &&
                 l.Name == name &&
                 l.Latitude == latitude &&
@@ -292,9 +288,7 @@ public class LocationController:ControllerBase{
         while (!worksheet.Cell(row, 1).IsEmpty())
         {
 
-            var measurementTime = worksheet
-                .Cell(row, 16)
-                .GetValue<DateTime?>();
+            var measurementTime = worksheet.Cell(row, 16).GetValue<DateTime?>();
 
             if (measurementTime.HasValue)
             {
