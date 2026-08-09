@@ -3,10 +3,7 @@
 import Map from "ol/Map";
 import View from "ol/View";
 
-import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
-
-import OSM from "ol/source/OSM";
 import VectorSource from "ol/source/Vector";
 
 import Feature from "ol/Feature";
@@ -14,7 +11,14 @@ import Point from "ol/geom/Point";
 
 import Overlay from "ol/Overlay";
 
+import Style from "ol/style/Style";
+import CircleStyle from "ol/style/Circle";
+import Fill from "ol/style/Fill";
+import Stroke from "ol/style/Stroke";
+
 import { fromLonLat, toLonLat } from "ol/proj";
+
+import { apply } from "ol-mapbox-style";
 
 import "ol/ol.css";
 
@@ -38,27 +42,60 @@ function MapView({
     onMapClick
 }: Props) {
 
+    // Элемент, в котором находится карта
     const mapElement =
         useRef<HTMLDivElement | null>(null);
 
+
+    // Элемент popup
     const popupElement =
         useRef<HTMLDivElement | null>(null);
 
 
+    // Экземпляр OpenLayers Map
     const mapRef =
         useRef<Map | null>(null);
 
+
+    // Источник маркеров
     const vectorSourceRef =
         useRef<VectorSource | null>(null);
 
 
+    // Храним актуальный onMapClick,
+    // чтобы карта не пересоздавалась
+    // при каждом изменении состояния
+    const onMapClickRef =
+        useRef<Props["onMapClick"]>(
+            onMapClick
+        );
 
-    // Создание карты
+
+    // Обновляем актуальный callback
+    useEffect(() => {
+
+        onMapClickRef.current =
+            onMapClick;
+
+    }, [onMapClick]);
+
+
+    // =====================================================
+    // СОЗДАНИЕ КАРТЫ
+    // =====================================================
+
     useEffect(() => {
 
         if (!mapElement.current)
             return;
 
+
+        let map: Map | null = null;
+
+
+        // =================================================
+        // ИСТОЧНИК МАРКЕРОВ
+        // =================================================
 
         const vectorSource =
             new VectorSource();
@@ -68,48 +105,124 @@ function MapView({
             vectorSource;
 
 
+        // =================================================
+        // СТИЛЬ МАРКЕРОВ
+        // =================================================
+
+        const markerStyle =
+            new Style({
+
+                image:
+                    new CircleStyle({
+
+                        radius: 7,
+
+                        fill:
+                            new Fill({
+
+                                color:
+                                    "#22c55e"
+
+                            }),
+
+                        stroke:
+                            new Stroke({
+
+                                color:
+                                    "#ffffff",
+
+                                width:
+                                    2
+
+                            })
+
+                    })
+
+            });
+
+
+        // =================================================
+        // СЛОЙ МАРКЕРОВ
+        // =================================================
+
         const markerLayer =
             new VectorLayer({
 
-                source: vectorSource
+                source:
+                    vectorSource,
+
+                style:
+                    markerStyle
 
             });
 
 
-        const map =
+        // =================================================
+        // СОЗДАНИЕ MAP
+        // =================================================
+
+        const mapInstance =
             new Map({
 
-                target: mapElement.current,
+                target:
+                    mapElement.current,
 
-                layers: [
+                // Пока без слоёв.
+                // OpenFreeMap добавит свои слои
+                // через apply().
+                layers: [],
 
-                    new TileLayer({
+                view:
+                    new View({
 
-                        source: new OSM()
+                        center:
+                            fromLonLat([
 
-                    }),
+                                74.5698,
+                                42.8746
 
-                    markerLayer
+                            ]),
 
-                ],
+                        zoom:
+                            13
 
-                view: new View({
-
-                    center: fromLonLat([
-                        74.5698,
-                        42.8746
-                    ]),
-
-                    zoom: 13
-
-                })
+                    })
 
             });
 
 
-        mapRef.current = map;
+        map =
+            mapInstance;
 
 
+        mapRef.current =
+            mapInstance;
+
+
+        // =================================================
+        // OPENFREEMAP VECTOR TILES
+        // =================================================
+
+        apply(
+            mapInstance,
+            "https://tiles.openfreemap.org/styles/liberty"
+        ).then(() => {
+
+            // ВАЖНО:
+            // добавляем наши маркеры ПОСЛЕ
+            // базовых слоёв OpenFreeMap,
+            // чтобы они находились сверху.
+
+            mapInstance.addLayer(
+                markerLayer
+            );
+
+        });
+
+
+        // =================================================
+        // POPUP
+        // =================================================
 
         const popup =
             new Overlay({
@@ -126,23 +239,34 @@ function MapView({
             });
 
 
-        map.addOverlay(popup);
+        mapInstance.addOverlay(
+            popup
+        );
 
 
+        // =================================================
+        // КЛИК ПО КАРТЕ
+        // =================================================
 
-        map.on(
+        mapInstance.on(
             "click",
-            (event) => {
+            event => {
 
+                // Проверяем, есть ли
+                // маркер под курсором.
 
                 const feature =
-                    map.forEachFeatureAtPixel(
+                    mapInstance.forEachFeatureAtPixel(
                         event.pixel,
-                        feature => feature
+                        feature =>
+                            feature
                     );
 
 
-                // Нажали на существующую точку
+                // =================================================
+                // КЛИК ПО МАРКЕРУ
+                // =================================================
+
                 if (feature) {
 
                     popup.setPosition(
@@ -150,33 +274,42 @@ function MapView({
                     );
 
 
-                    popupElement.current!.innerHTML = `
+                    popupElement.current!
+                        .innerHTML = `
 
-                        <b>
-                            ${feature.get("name")}
-                        </b>
+    <b>
+                                ${ feature.get("name") }
+                            </b >
 
-                        <br/>
+    <br />
 
-                        Координаты:
+Координаты:
 
-                        <br/>
+<br />
 
-                        ${feature.get("latitude")},
-                        ${feature.get("longitude")}
+                            ${ feature.get("latitude") },
+                            ${ feature.get("longitude") }
 
-                    `;
+`;
+
 
                     return;
+
                 }
 
 
+                // =================================================
+                // КЛИК ПО ПУСТОМУ МЕСТУ
+                // =================================================
 
-                // Нажали на пустое место карты
-                popup.setPosition(undefined);
+                popup.setPosition(
+                    undefined
+                );
 
 
-                if (onMapClick) {
+                if (
+                    onMapClickRef.current
+                ) {
 
                     const [
                         longitude,
@@ -187,7 +320,7 @@ function MapView({
                         );
 
 
-                    onMapClick(
+                    onMapClickRef.current(
                         latitude,
                         longitude
                     );
@@ -198,22 +331,38 @@ function MapView({
         );
 
 
+        // =================================================
+        // ОЧИСТКА
+        // =================================================
 
         return () => {
 
-            map.setTarget(undefined);
+            if (map) {
 
-            mapRef.current = null;
+                map.setTarget(
+                    undefined
+                );
+
+            }
+
+
+            mapRef.current =
+                null;
+
+
+            vectorSourceRef.current =
+                null;
 
         };
 
 
-    }, [onMapClick]);
+    }, []);
 
 
+    // =====================================================
+    // ОБНОВЛЕНИЕ МАРКЕРОВ
+    // =====================================================
 
-
-    // Обновление маркеров
     useEffect(() => {
 
         const source =
@@ -224,84 +373,85 @@ function MapView({
             return;
 
 
+        // Удаляем старые маркеры
         source.clear();
 
 
+        // Добавляем актуальные маркеры
+        locations.forEach(
+            location => {
 
-        locations.forEach(location => {
+                const marker =
+                    new Feature({
 
+                        geometry:
+                            new Point(
 
-            const marker =
-                new Feature({
+                                fromLonLat([
 
-                    geometry:
-                        new Point(
+                                    location.longitude,
 
-                            fromLonLat([
+                                    location.latitude
 
-                                location.longitude,
+                                ])
 
-                                location.latitude
+                            ),
 
-                            ])
+                        name:
+                            location.name,
 
-                        ),
+                        latitude:
+                            location.latitude,
 
+                        longitude:
+                            location.longitude
 
-                    name:
-                        location.name,
-
-
-                    latitude:
-                        location.latitude,
-
-
-                    longitude:
-                        location.longitude
-
-                });
+                    });
 
 
+                source.addFeature(
+                    marker
+                );
 
-            source.addFeature(marker);
-
-
-        });
+            }
+        );
 
 
     }, [locations]);
 
 
-
+    // =====================================================
+    // JSX
+    // =====================================================
 
     return (
 
         <>
 
             <div
-
                 ref={mapElement}
-
                 style={{
-                    height: "600px",
-                    width: "100%"
+                    width: "100%",
+                    height: "600px"
                 }}
-
             />
 
 
             <div
-
                 ref={popupElement}
-
                 style={{
-                    background: "white",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    boxShadow:
-                        "0 2px 8px rgba(0,0,0,0.3)"
-                }}
+                    background:
+                        "white",
 
+                    padding:
+                        "10px",
+
+                    borderRadius:
+                        "5px",
+
+                    boxShadow:
+                        "0 2px 8px rgba(0, 0, 0, 0.3)"
+                }}
             />
 
         </>
