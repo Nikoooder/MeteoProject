@@ -3,7 +3,7 @@ import { api } from "../api/api";
 import MapView from "../components/map/MapView";
 import { useAuth } from "../api/AuthContext";
 import LocationForm from "../components/locations/LocationForm";
-
+import "./Home.css";
 
 interface Location {
     id: number;
@@ -13,199 +13,138 @@ interface Location {
     userId: number;
 }
 
-
 function Home() {
-
     const { user } = useAuth();
 
+    const [locations, setLocations] = useState<Location[]>([]);
 
-    const [locations, setLocations] =
-        useState<Location[]>([]);
+    const [coordinates, setCoordinates] = useState({
+        latitude: 0,
+        longitude: 0
+    });
 
+    const [showForm, setShowForm] = useState(false);
 
-    const [coordinates, setCoordinates] =
-        useState({
-
-            latitude: 0,
-
-            longitude: 0
-
-        });
-
-
-    const [showForm, setShowForm] =
-        useState(false);
-
-
+    const [isExplorerOpen, setIsExplorerOpen] = useState(true);
 
     async function loadLocations() {
+        const response = await api.get("/Location");
 
-        const response =
-            await api.get("/Location");
-
-
-        setLocations(
-            response.data
-        );
-
+        setLocations(response.data);
     }
 
-
-
-    async function addLocation(
-        name: string
-    ) {
-
-        await api.post(
-            "/Location",
-            {
-
-                name,
-
-                latitude:
-                    coordinates.latitude,
-
-                longitude:
-                    coordinates.longitude
-
-            }
-        );
-
+    async function addLocation(name: string) {
+        await api.post("/Location", {
+            name,
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude
+        });
 
         await loadLocations();
 
-
         setShowForm(false);
 
-
         setCoordinates({
-
             latitude: 0,
-
             longitude: 0
-
         });
-
     }
 
-
-
-
     useEffect(() => {
-
         loadLocations();
-
     }, []);
 
-
-
-
     return (
+        <div className="home">
 
-        <div>
-
-
-            <h1>
-                EcoMonitor
-            </h1>
-
-
-
-            <MapView
-
-                locations={locations}
+            {/* Верхняя плашка */}
+            <header className="home-header">
+                <h1 className="home-title">
+                    EcoMonitor
+                </h1>
+            </header>
 
 
-                onMapClick={(lat, lon) => {
-
-                    setCoordinates({
-
-                        latitude: lat,
-
-                        longitude: lon
-
-                    });
-
-                }}
-
-            />
-
+            {/* Карта */}
+            <main className="home-map">
+                <MapView
+                    locations={locations}
+                    onMapClick={(lat, lon) => {
+                        setCoordinates({
+                            latitude: lat,
+                            longitude: lon
+                        });
+                    }}
+                />
+            </main>
 
 
-            {
-                user && (
+            {/* Панель исследователя */}
+            {user && (
+                <section
+                    className={`explorer-panel ${isExplorerOpen
+                            ? "explorer-panel-open"
+                            : "explorer-panel-closed"
+                        }`}
+                >
+                    <div className="explorer-header">
 
-                    <div>
-
-
-                        <h2>
+                        <h2 className="explorer-title">
                             Панель исследователя
                         </h2>
 
+                        <div className="explorer-actions">
 
+                            <button
+                                className="explorer-button"
+                                onClick={() => setShowForm(true)}
+                            >
+                                + Добавить локацию
+                            </button>
 
-                        <button
+                            <button
+                                className="explorer-toggle"
+                                onClick={() =>
+                                    setIsExplorerOpen(!isExplorerOpen)
+                                }
+                                aria-label={
+                                    isExplorerOpen
+                                        ? "Свернуть панель"
+                                        : "Развернуть панель"
+                                }
+                            >
+                                {isExplorerOpen ? "⌄" : "⌃"}
+                            </button>
 
-                            onClick={() =>
-                                setShowForm(true)
-                            }
-
-                        >
-
-                            Добавить локацию
-                        </button>
-
-
-
-                        {
-                            showForm && (
-
-                                <LocationForm
-
-                                    latitude={
-                                        coordinates.latitude
-                                    }
-
-
-                                    longitude={
-                                        coordinates.longitude
-                                    }
-
-
-                                    onChange={(lat, lon) => {
-
-                                        setCoordinates({
-
-                                            latitude: lat,
-
-                                            longitude: lon
-
-                                        });
-
-                                    }}
-
-
-                                    onSubmit={(name) =>
-                                        addLocation(name)
-                                    }
-
-                                />
-
-                            )
-                        }
-
-
+                        </div>
                     </div>
 
-                )
-            }
+                    {isExplorerOpen && showForm && (
+                        <div className="location-form-wrapper">
 
+                            <LocationForm
+                                latitude={coordinates.latitude}
+                                longitude={coordinates.longitude}
+
+                                onChange={(lat, lon) => {
+                                    setCoordinates({
+                                        latitude: lat,
+                                        longitude: lon
+                                    });
+                                }}
+
+                                onSubmit={(name) =>
+                                    addLocation(name)
+                                }
+                            />
+
+                        </div>
+                    )}
+                </section>
+            )}
 
         </div>
-
     );
-
 }
-
 
 export default Home;

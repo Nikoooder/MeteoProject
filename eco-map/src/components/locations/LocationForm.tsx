@@ -1,10 +1,7 @@
 ﻿import { useState } from "react";
 
-
 interface Props {
-
     latitude: number;
-
     longitude: number;
 
     onChange: (
@@ -13,9 +10,7 @@ interface Props {
     ) => void;
 
     onSubmit?: (name: string) => void;
-
 }
-
 
 function LocationForm({
     latitude,
@@ -23,131 +18,80 @@ function LocationForm({
     onChange,
     onSubmit
 }: Props) {
-
-
-    const [name, setName] =
-        useState("");
-
-
+    const [name, setName] = useState("");
 
     return (
+        <div className="location-form-container">
 
-        <div
-            style={{
-                padding: "20px",
-                borderTop: "1px solid #ccc"
-            }}
-        >
+            {/*<h2 className="location-form-title">*/}
+            {/*    Добавить локацию*/}
+            {/*</h2>*/}
 
-            <h2>
-                Добавить локацию
-            </h2>
+            <div className="location-form">
 
+                <div className="location-field location-name">
+                    <label>
+                        Название
+                    </label>
 
-            <div>
-
-                <label>
-                    Название:
-                </label>
-
-
-                <br />
-
-
-                <input
-
-                    value={name}
-
-                    onChange={(e) =>
-                        setName(
-                            e.target.value
-                        )
-                    }
-
-                    placeholder="Название точки"
-
-                />
-
-            </div>
+                    <input
+                        value={name}
+                        onChange={(e) =>
+                            setName(e.target.value)
+                        }
+                        placeholder="Название точки"
+                    />
+                </div>
 
 
-            <br />
+                <div className="location-field">
+                    <label>
+                        Широта
+                    </label>
+
+                    <input
+                        type="number"
+                        value={latitude}
+                        onChange={(e) =>
+                            onChange(
+                                Number(e.target.value),
+                                longitude
+                            )
+                        }
+                    />
+                </div>
 
 
-            <div>
+                <div className="location-field">
+                    <label>
+                        Долгота
+                    </label>
 
-                <label>
-                    Широта:
-                </label>
+                    <input
+                        type="number"
+                        value={longitude}
+                        onChange={(e) =>
+                            onChange(
+                                latitude,
+                                Number(e.target.value)
+                            )
+                        }
+                    />
+                </div>
 
 
-                <br />
-
-
-                <input
-
-                    type="number"
-
-                    value={latitude}
-
-                    onChange={(e) =>
-                        onChange(
-                            Number(e.target.value),
-                            longitude
-                        )
-                    }
-
-                />
+                <button
+                    className="location-submit"
+                    onClick={() => onSubmit?.(name)}
+                >
+                    Сохранить
+                </button>
 
             </div>
-
-
-            <br />
-
-
-            <div>
-
-                <label>
-                    Долгота:
-                </label>
-
-
-                <br />
-
-
-                <input
-
-                    type="number"
-
-                    value={longitude}
-
-                    onChange={(e) =>
-                        onChange(
-                            latitude,
-                            Number(e.target.value)
-                        )
-                    }
-
-                />
-
-            </div>
-
-
-            <br />
-
-
-            <button
-                onClick={() => onSubmit?.(name)}
-            >
-                Сохранить
-            </button>
-
 
         </div>
-
     );
-
 }
 
-
 export default LocationForm;
+

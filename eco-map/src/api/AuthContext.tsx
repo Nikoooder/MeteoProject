@@ -4,25 +4,23 @@ import {
     useState
 } from "react";
 
-
 interface User {
     id: number;
     username: string;
     email: string;
 }
 
-
 interface AuthContextType {
     user: User | null;
+    login: (user: User, token: string) => void;
     logout: () => void;
 }
 
-
 const AuthContext = createContext<AuthContextType>({
     user: null,
+    login: () => { },
     logout: () => { }
 });
-
 
 export function AuthProvider({
     children
@@ -31,9 +29,7 @@ export function AuthProvider({
 }) {
 
     const [user, setUser] = useState<User | null>(() => {
-
-        const savedUser =
-            localStorage.getItem("user");
+        const savedUser = localStorage.getItem("user");
 
         return savedUser
             ? JSON.parse(savedUser)
@@ -41,8 +37,22 @@ export function AuthProvider({
     });
 
 
-    function logout() {
+    function login(user: User, token: string) {
+        localStorage.setItem(
+            "token",
+            token
+        );
 
+        localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+        );
+
+        setUser(user);
+    }
+
+
+    function logout() {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
@@ -54,6 +64,7 @@ export function AuthProvider({
         <AuthContext.Provider
             value={{
                 user,
+                login,
                 logout
             }}
         >
@@ -61,7 +72,6 @@ export function AuthProvider({
         </AuthContext.Provider>
     );
 }
-
 
 export function useAuth() {
     return useContext(AuthContext);
