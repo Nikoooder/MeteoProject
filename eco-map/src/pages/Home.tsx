@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../api/api";
 import MapView from "../components/map/MapView";
 import { useAuth } from "../api/AuthContext";
@@ -62,6 +63,21 @@ function Home() {
                 <h1 className="home-title">
                     EcoMonitor
                 </h1>
+
+                <div className="home-header-actions">
+                    {user ? (
+                        <Link to="/profile" className="home-profile-link">
+                            <span className="home-profile-avatar">
+                                {user.username.charAt(0).toUpperCase()}
+                            </span>
+                            {user.username}
+                        </Link>
+                    ) : (
+                        <Link to="/login" className="home-profile-link">
+                            Войти
+                        </Link>
+                    )}
+                </div>
             </header>
 
 
