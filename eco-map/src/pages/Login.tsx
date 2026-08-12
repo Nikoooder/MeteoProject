@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { api } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../api/AuthContext";
+import { Link } from "react-router-dom";
 import "./AuthForm.css";
 
 function Login() {
@@ -165,6 +166,10 @@ function Login() {
                         >
                             Войти
                         </button>
+
+                        <p className="register-link">
+                            Нет профиля? <Link to="/register">Зарегистрироваться</Link>
+                        </p>
 
                     </form>
 

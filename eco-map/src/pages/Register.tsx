@@ -5,30 +5,46 @@ import "./AuthForm.css";
 
 function Register() {
     const navigate = useNavigate();
+
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+
     const specularRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        setError("");
+        setMessage("");
+
+        if (password !== confirmPassword) {
+            setError("Пароли не совпадают");
+            return;
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+
         try {
-            setError("");
-            setMessage("");
             const response = await api.post("/auth/register", {
-                username,
-                email,
+                username: username.trim(),
+                email: normalizedEmail,
                 password
             });
+
             setMessage(response.data.message || "Регистрация успешна");
+
             setTimeout(() => {
                 navigate("/login");
             }, 1000);
         } catch (err: unknown) {
             console.error(err);
+
             if (err instanceof Error) {
                 setError(err.message);
             } else {
@@ -39,14 +55,17 @@ function Register() {
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!cardRef.current || !specularRef.current) return;
+
         const rect = cardRef.current.getBoundingClientRect();
+
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
+
         specularRef.current.style.background = `radial-gradient(
             circle at ${x}px ${y}px,
-            rgba(255,255,255,0.15) 0%,
-            rgba(255,255,255,0.05) 30%,
-            rgba(255,255,255,0) 60%
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.05) 30%,
+            rgba(255, 255, 255, 0) 60%
         )`;
     };
 
@@ -67,7 +86,12 @@ function Register() {
                         numOctaves={2}
                         result="noise"
                     />
-                    <feDisplacementMap in="SourceGraphic" in2="noise" scale={77} />
+
+                    <feDisplacementMap
+                        in="SourceGraphic"
+                        in2="noise"
+                        scale={77}
+                    />
                 </filter>
             </svg>
 
@@ -79,45 +103,91 @@ function Register() {
             >
                 <div className="glass-filter"></div>
                 <div className="glass-overlay"></div>
-                <div className="glass-specular" ref={specularRef}></div>
+                <div
+                    className="glass-specular"
+                    ref={specularRef}
+                ></div>
 
                 <div className="glass-content">
-                    <h2 className="register-title">Регистрация</h2>
-                    <form className="register-form" onSubmit={handleRegister}>
+                    <h2 className="register-title">
+                        Регистрация
+                    </h2>
+
+                    <form
+                        className="register-form"
+                        onSubmit={handleRegister}
+                    >
                         <div className="form-group">
-                            {/*<label>Имя пользователя</label>*/}
                             <input
                                 type="text"
                                 placeholder="Имя пользователя"
                                 value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                onChange={(e) => {
+                                    setUsername(e.target.value);
+                                    setError("");
+                                }}
+                                required
                             />
                         </div>
+
                         <div className="form-group">
-                            {/*<label>Email</label>*/}
                             <input
                                 type="email"
                                 placeholder="Email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    setError("");
+                                }}
+                                required
                             />
                         </div>
+
                         <div className="form-group">
-                            {/*<label>Пароль</label>*/}
                             <input
                                 type="password"
                                 placeholder="Пароль"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    setError("");
+                                }}
+                                required
                             />
                         </div>
-                        <button className="register-button" type="submit">
+
+                        <div className="form-group">
+                            <input
+                                type="password"
+                                placeholder="Повторите пароль"
+                                value={confirmPassword}
+                                onChange={(e) => {
+                                    setConfirmPassword(e.target.value);
+                                    setError("");
+                                }}
+                                required
+                            />
+                        </div>
+
+                        <button
+                            className="register-button"
+                            type="submit"
+                        >
                             Зарегистрироваться
                         </button>
                     </form>
 
-                    {message && <p className="register-message">{message}</p>}
-                    {error && <p className="register-error">{error}</p>}
+                    {message && (
+                        <p className="register-message">
+                            {message}
+                        </p>
+                    )}
+
+                    {error && (
+                        <p className="register-error">
+                            {error}
+                        </p>
+                    )}
                 </div>
             </div>
         </div>

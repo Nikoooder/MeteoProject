@@ -20,7 +20,7 @@
 }
 
 .profile-back {
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 500;
     color: #68756f;
     text-decoration: none;
@@ -33,7 +33,7 @@
 
 .profile-title {
     margin: 0;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
     color: #1d2924;
     flex: 1;
@@ -265,7 +265,9 @@
 
 .location-card-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
+    gap: 8px;
     padding: 12px 0;
 }
 
@@ -506,3 +508,19 @@
         width: 100%;
     }
 }
+.danger-button {
+    background: #ffffff;
+    border: 1px solid #f3c8c5;
+    color: #b3261e;
+}
+
+    .danger-button:hover:not(:disabled) {
+        background: #fdecec;
+    }
+
+    .danger-button:disabled {
+        background: #ffffff;
+        color: #c98d89;
+        border-color: #eee1e0;
+        cursor: default;
+    }

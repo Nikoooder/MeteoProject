@@ -9,7 +9,7 @@
 }
 
 /* Верхняя плашка */
-.home-header {
+/*.home-header {
     height: 56px;
     flex-shrink: 0;
     display: flex;
@@ -19,7 +19,28 @@
     background: #ffffff;
     border-bottom: 1px solid #dfe5e2;
     z-index: 10;
+}*/
+
+/* Верхняя навигация поверх карты */
+.home-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border-bottom: none;
+    z-index: 1000;
+    pointer-events: none;
 }
+
+    .home-header > * {
+        pointer-events: auto;
+    }
 
 .home-title {
     margin: 0;
@@ -35,7 +56,7 @@
     gap: 12px;
 }
 
-.home-profile-link {
+/*.home-profile-link {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -43,7 +64,7 @@
     border-radius: 20px;
     background: #f4f6f5;
     color: #1d2924;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     text-decoration: none;
     transition: background 0.15s ease;
@@ -51,6 +72,26 @@
 
     .home-profile-link:hover {
         background: #edf2ef;
+    }*/
+
+    .home-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 6px;
+    border: 1px solid #dfe5e2;
+    border-radius: 20px;
+    background: #f4f6f5;
+    color: #1d2924;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .home-profile-link:hover {
+        background: #edf2ef;
+        border-color: #cbd5d0;
     }
 
 .home-profile-avatar {
@@ -74,10 +115,10 @@
     overflow: hidden;
 }
 
-    .home-map > * {
+  /*  .home-map > * {
         width: 100%;
         height: 100%;
-    }
+    }*/
 
 /* Панель исследователя */
 .explorer-panel {
@@ -225,3 +266,103 @@
     .location-submit:hover {
         background: #354d41;
     }
+
+.map-popup {
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.map-popup:empty {
+    display: none;
+}
+.location-form-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.location-cancel {
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid #dfe5e2;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #1d2924;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .location-cancel:hover {
+        background: #edf2ef;
+    }
+
+.location-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.explorer-tabs {
+    display: flex;
+    gap: 6px;
+}
+
+.explorer-tab {
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid #dfe5e2;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #1d2924;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .explorer-tab:hover {
+        background: #edf2ef;
+    }
+
+.explorer-tab-active {
+    background: #263a31;
+    color: #ffffff;
+    border-color: #263a31;
+}
+
+    .explorer-tab-active:hover {
+        background: #354d41;
+    }
+
+/*.explorer-panel-scroll {
+    max-height: 55vh;
+    overflow-y: auto;
+    padding-top: 10px;
+}*/
+
+.explorer-selected-hint {
+    margin: 10px 0 0;
+    font-size: 14px;
+    color: #68756f;
+}
+
+.location-form-wrapper {
+    margin-top: 10px;
+}
+
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.map-element {
+    width: 100%;
+    height: 100%;
+}
+
+.ol-zoom {
+    top: auto;
+    left: 20px;
+    bottom: 10px;
+}
