@@ -20,7 +20,7 @@
     flex-direction: column;
     gap: 4px;
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
     .olp-filter input,
@@ -28,46 +28,53 @@
         height: 34px;
         box-sizing: border-box;
         padding: 0 10px;
-        border: 1px solid #dfe5e2;
+        border: 1px solid var(--app-input-border);
         border-radius: 7px;
-        background: #ffffff;
-        color: #1d2924;
+        background: var(--app-input-bg);
+        color: var(--app-text);
         font-size: 13px;
         outline: none;
+        transition: border-color 0.15s ease, background 0.15s ease;
     }
+
+        .olp-filter input:focus,
+        .olp-filter select:focus {
+            border-color: var(--app-input-focus-border);
+            background: var(--app-surface);
+        }
 
 .olp-reset {
     height: 34px;
     padding: 0 14px;
     border-radius: 7px;
-    border: 1px solid #dfe5e2;
-    background: #ffffff;
-    color: #1d2924;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text);
     font-size: 13px;
     cursor: pointer;
 }
 
     .olp-reset:hover {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .olp-section-title {
     margin: 0 0 6px;
     font-size: 13px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .olp-empty {
     margin: 0;
     font-size: 13px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .olp-error {
     margin: 0 0 6px;
     font-size: 12px;
-    color: #b3261e;
+    color: var(--app-danger);
 }
 
 .olp-location-list {
@@ -88,24 +95,25 @@
     align-items: flex-start;
     gap: 2px;
     padding: 8px 10px;
-    border: 1px solid #eef1f0;
+    border: 1px solid var(--app-border);
     border-radius: 7px;
-    background: #fbfcfb;
+    background: var(--app-surface-muted);
+    color: inherit;
     cursor: pointer;
     text-align: left;
 }
 
     .olp-location-item:hover {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .olp-location-name {
     font-size: 13px;
     font-weight: 500;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .olp-location-meta {
     font-size: 11px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }

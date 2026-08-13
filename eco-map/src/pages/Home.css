@@ -5,23 +5,11 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: #f4f6f5;
+    background: var(--app-bg);
+    transition: background 0.2s ease;
 }
 
-/* Верхняя плашка */
-/*.home-header {
-    height: 56px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    background: #ffffff;
-    border-bottom: 1px solid #dfe5e2;
-    z-index: 10;
-}*/
-
-/* Верхняя навигация поверх карты */
+/* Р’РµСЂС…РЅСЏСЏ РЅР°РІРёРіР°С†РёСЏ РїРѕРІРµСЂС… РєР°СЂС‚С‹ */
 .home-header {
     position: absolute;
     top: 0;
@@ -42,12 +30,18 @@
         pointer-events: auto;
     }
 
+.home-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .home-title {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .home-header-actions {
@@ -56,50 +50,32 @@
     gap: 12px;
 }
 
-/*.home-profile-link {
+.home-profile-link {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 6px 12px 6px 6px;
+    border: 1px solid var(--app-border);
     border-radius: 20px;
-    background: #f4f6f5;
-    color: #1d2924;
-    font-size: 15px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background 0.15s ease;
-}
-
-    .home-profile-link:hover {
-        background: #edf2ef;
-    }*/
-
-    .home-profile-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px 6px 6px;
-    border: 1px solid #dfe5e2;
-    border-radius: 20px;
-    background: #f4f6f5;
-    color: #1d2924;
+    background: var(--app-surface);
+    color: var(--app-text);
     font-size: 15px;
     font-weight: 500;
     text-decoration: none;
     transition: background 0.15s ease, border-color 0.15s ease;
-    }
+}
 
     .home-profile-link:hover {
-        background: #edf2ef;
-        border-color: #cbd5d0;
+        background: var(--app-surface-hover);
+        border-color: var(--app-border-strong);
     }
 
 .home-profile-avatar {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #263a31;
-    color: #ffffff;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
     font-size: 12px;
     font-weight: 600;
     display: flex;
@@ -107,7 +83,7 @@
     justify-content: center;
 }
 
-/* Основная область */
+/* РћСЃРЅРѕРІРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ */
 .home-map {
     position: relative;
     flex: 1;
@@ -115,22 +91,17 @@
     overflow: hidden;
 }
 
-  /*  .home-map > * {
-        width: 100%;
-        height: 100%;
-    }*/
-
-/* Панель исследователя */
+/* РџР°РЅРµР»СЊ РёСЃСЃР»РµРґРѕРІР°С‚РµР»СЏ */
 .explorer-panel {
     flex-shrink: 0;
     width: 100%;
     box-sizing: border-box;
     padding: 10px 24px;
-    background: #ffffff;
-    border-top: 1px solid #dfe5e2;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    background: var(--app-surface);
+    border-top: 1px solid var(--app-border);
+    box-shadow: 0 -2px 10px var(--app-shadow);
     z-index: 10;
-    transition: padding 0.2s ease;
+    transition: padding 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .explorer-panel-open {
@@ -154,7 +125,7 @@
     margin: 0;
     font-size: 15px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .explorer-description {
@@ -171,8 +142,8 @@
     padding: 8px 14px;
     border: none;
     border-radius: 7px;
-    background: #263a31;
-    color: white;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -180,7 +151,7 @@
 }
 
     .explorer-button:hover {
-        background: #354d41;
+        background: var(--app-accent-hover);
     }
 
 .explorer-toggle {
@@ -192,7 +163,7 @@
     border: none;
     border-radius: 7px;
     background: transparent;
-    color: #263a31;
+    color: var(--app-accent);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
@@ -200,7 +171,7 @@
 }
 
     .explorer-toggle:hover {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .location-form-container {
@@ -211,7 +182,7 @@
     margin: 0 0 10px;
     font-size: 14px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .location-form {
@@ -229,22 +200,24 @@
 
     .location-field label {
         font-size: 12px;
-        color: #68756f;
+        color: var(--app-text-secondary);
     }
 
     .location-field input {
         height: 36px;
         box-sizing: border-box;
         padding: 0 10px;
-        border: 1px solid #dfe5e2;
+        border: 1px solid var(--app-input-border);
         border-radius: 7px;
-        background: #ffffff;
-        color: #1d2924;
+        background: var(--app-input-bg);
+        color: var(--app-text);
         outline: none;
+        transition: border-color 0.15s ease, background 0.15s ease;
     }
 
         .location-field input:focus {
-            border-color: #222e9a;
+            border-color: var(--app-input-focus-border);
+            background: var(--app-surface);
         }
 
 .location-name {
@@ -256,22 +229,23 @@
     padding: 0 16px;
     border: none;
     border-radius: 7px;
-    background: #263a31;
-    color: white;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
 }
 
     .location-submit:hover {
-        background: #354d41;
+        background: var(--app-accent-hover);
     }
 
 .map-popup {
-    background: white;
+    background: var(--app-surface);
+    color: var(--app-text);
     padding: 12px;
     border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 4px 16px var(--app-shadow);
 }
 
 .map-popup:empty {
@@ -285,17 +259,17 @@
 .location-cancel {
     height: 36px;
     padding: 0 16px;
-    border: 1px solid #dfe5e2;
+    border: 1px solid var(--app-border);
     border-radius: 7px;
-    background: #ffffff;
-    color: #1d2924;
+    background: var(--app-surface);
+    color: var(--app-text);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
 }
 
     .location-cancel:hover {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .location-submit:disabled {
@@ -311,39 +285,33 @@
 .explorer-tab {
     height: 30px;
     padding: 0 12px;
-    border: 1px solid #dfe5e2;
+    border: 1px solid var(--app-border);
     border-radius: 7px;
-    background: #ffffff;
-    color: #1d2924;
+    background: var(--app-surface);
+    color: var(--app-text);
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
 }
 
     .explorer-tab:hover {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .explorer-tab-active {
-    background: #263a31;
-    color: #ffffff;
-    border-color: #263a31;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
+    border-color: var(--app-accent);
 }
 
     .explorer-tab-active:hover {
-        background: #354d41;
+        background: var(--app-accent-hover);
     }
-
-/*.explorer-panel-scroll {
-    max-height: 55vh;
-    overflow-y: auto;
-    padding-top: 10px;
-}*/
 
 .explorer-selected-hint {
     margin: 10px 0 0;
     font-size: 14px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .location-form-wrapper {

@@ -51,7 +51,21 @@ interface Props {
 
     // Содержимое popup.
     popupContent?: React.ReactNode;
+
+    // Тема карты: "light" | "dark".
+    // Переключает стиль тайлов OpenFreeMap.
+    theme?: "light" | "dark";
 }
+
+
+// =====================================================
+// СТИЛИ КАРТЫ ПО ТЕМЕ
+// =====================================================
+
+const MAP_STYLE_BY_THEME: Record<"light" | "dark", string> = {
+    light: "https://tiles.openfreemap.org/styles/liberty",
+    dark: "https://tiles.openfreemap.org/styles/dark"
+};
 
 
 // =====================================================
@@ -87,7 +101,8 @@ function MapView({
     onMapClick,
     onLocationClick,
     selectedLocationId = null,
-    popupContent
+    popupContent,
+    theme = "light"
 }: Props) {
 
     // =================================================
@@ -119,6 +134,12 @@ function MapView({
 
     const mapRef =
         useRef<Map | null>(null);
+
+    const previousZoomRef =
+        useRef<number | undefined>(undefined);
+
+    const previousCenterRef =
+        useRef<number[] | undefined>(undefined);
 
     const overlayRef =
         useRef<Overlay | null>(null);
@@ -167,7 +188,6 @@ function MapView({
     // =====================================================
 
     useEffect(() => {
-
         if (
             !mapElement.current ||
             !popupElementRef.current
@@ -211,6 +231,39 @@ function MapView({
         // =================================================
         // СОЗДАНИЕ КАРТЫ
         // =================================================
+        //
+        // Если карта уже существовала (например, при
+        // переключении темы), сохраняем текущий центр
+        // и зум, чтобы не "прыгать" по карте.
+        // =================================================
+
+        //const previousView =
+        //    mapRef.current?.getView();
+
+        //const initialCenter =
+        //    previousView?.getCenter() ??
+        //    fromLonLat([74.5698, 42.8746]);
+
+        //const initialZoom =
+        //    previousView?.getZoom() ?? 13;
+
+
+        //const previousView =
+        //    mapRef.current?.getView();
+
+        //const initialCenter =
+        //    previousView?.getCenter() ??
+        //    fromLonLat([74.5698, 42.8746]);
+
+        //const initialZoom =
+        //    previousZoomRef.current ?? 13;
+
+        const initialCenter =
+            previousCenterRef.current ??
+            fromLonLat([74.5698, 42.8746]);
+
+        const initialZoom =
+            previousZoomRef.current ?? 13;
 
         const mapInstance =
             new Map({
@@ -224,14 +277,8 @@ function MapView({
 
                 view:
                     new View({
-
-                        center:
-                            fromLonLat([
-                                74.5698,
-                                42.8746
-                            ]),
-
-                        zoom: 13
+                        center: initialCenter,
+                        zoom: initialZoom
                     })
             });
 
@@ -246,7 +293,7 @@ function MapView({
 
         apply(
             mapInstance,
-            "https://tiles.openfreemap.org/styles/liberty"
+            MAP_STYLE_BY_THEME[theme]
         )
             .then(() => {
 
@@ -463,30 +510,67 @@ function MapView({
         // CLEANUP
         // =================================================
 
+        //return () => {
+
+        //    mapInstance.setTarget(
+        //        undefined
+        //    );
+
+        //    mapRef.current =
+        //        null;
+
+        //    overlayRef.current =
+        //        null;
+
+        //    vectorSourceRef.current =
+        //        null;
+        //};
+
+        //return () => {
+        //    previousZoomRef.current =
+        //        mapInstance.getView().getZoom();
+
+        //    mapInstance.setTarget(
+        //        undefined
+        //    );
+
+        //    mapRef.current =
+        //        null;
+
+        //    overlayRef.current =
+        //        null;
+
+        //    vectorSourceRef.current =
+        //        null;
+        //};
+
         return () => {
+            previousZoomRef.current =
+                mapInstance.getView().getZoom();
+
+            previousCenterRef.current =
+                mapInstance.getView().getCenter();
 
             mapInstance.setTarget(
                 undefined
             );
 
-            mapRef.current =
-                null;
+            mapRef.current = null;
 
-            overlayRef.current =
-                null;
+            overlayRef.current = null;
 
-            vectorSourceRef.current =
-                null;
+            vectorSourceRef.current = null;
         };
 
 
         // Карта создаётся только после появления
-        // popup DOM-узла.
+        // popup DOM-узла, а также пересоздаётся
+        // при смене темы (свои тайлы OpenFreeMap).
         //
         // eslint-disable-next-line
         // react-hooks/exhaustive-deps
 
-    }, [popupNode]);
+    }, [popupNode, theme]);
 
 
     // =====================================================
@@ -553,7 +637,7 @@ function MapView({
         );
 
 
-    }, [locations]);
+    }, [locations, theme]);
 
 
     // =====================================================

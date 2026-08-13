@@ -4,6 +4,7 @@ import { api } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../api/AuthContext";
 import { Link } from "react-router-dom";
+import EcoMonitorButton from "../components/common/EcoMonitorButton";
 import "./AuthForm.css";
 
 function Login() {
@@ -93,6 +94,8 @@ function Login() {
 
     return (
         <div className="register-page">
+
+            <EcoMonitorButton variant="floating" />
 
             <svg style={{ display: "none" }}>
                 <filter id="glass-distortion">

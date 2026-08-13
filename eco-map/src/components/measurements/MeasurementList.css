@@ -1,20 +1,38 @@
 .ml-empty {
     margin: 8px 0 0;
     font-size: 13px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .ml-table-wrapper {
     margin-top: 10px;
     overflow-x: auto;
-    border: 1px solid #dfe5e2;
+    border: 1px solid var(--app-border);
     border-radius: 10px;
+}
+
+.ml-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.ml-table-wrapper::-webkit-scrollbar-track {
+    background: var(--app-surface-muted);
+}
+
+.ml-table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--app-border-strong);
+    border-radius: 4px;
+}
+
+.ml-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--app-text-muted);
 }
 
 .ml-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
+    color: var(--app-text);
 }
 
     .ml-table th,
@@ -22,12 +40,12 @@
         padding: 8px 10px;
         text-align: left;
         white-space: nowrap;
-        border-bottom: 1px solid #eef1f0;
+        border-bottom: 1px solid var(--app-border);
     }
 
     .ml-table th {
-        background: #f4f6f5;
-        color: #68756f;
+        background: var(--app-surface-muted);
+        color: var(--app-text-secondary);
         font-weight: 600;
         position: sticky;
         top: 0;
@@ -46,15 +64,15 @@
     height: 26px;
     padding: 0 10px;
     border-radius: 6px;
-    border: 1px solid #dfe5e2;
-    background: #ffffff;
-    color: #1d2924;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text);
     font-size: 11px;
     cursor: pointer;
 }
 
     .ml-action-button:hover:not(:disabled) {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
     .ml-action-button:disabled {
@@ -63,10 +81,10 @@
     }
 
 .ml-action-danger {
-    border-color: #f3c8c5;
-    color: #b3261e;
+    border-color: var(--app-danger-border);
+    color: var(--app-danger);
 }
 
     .ml-action-danger:hover:not(:disabled) {
-        background: #fdecec;
+        background: var(--app-danger-bg);
     }

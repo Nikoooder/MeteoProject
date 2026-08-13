@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api/api";
 import { useAuth } from "../api/AuthContext";
@@ -13,6 +13,8 @@ import {
 } from "../components/measurements/measurementForm.types";
 import type { MeasurementFormValues } from "../components/measurements/measurementForm.types";
 import { average, formatDate, formatNumber } from "../utils/format";
+import EcoMonitorButton from "../components/common/EcoMonitorButton";
+import ThemeToggle from "../components/common/ThemeToggle";
 import "./Profile.css";
 
 interface LocationWithMeasurements extends Location {
@@ -30,6 +32,12 @@ function Profile() {
     const [openLocationId, setOpenLocationId] = useState<number | null>(null);
 
     const [exportingId, setExportingId] = useState<number | null>(null);
+
+    // Импорт из Excel
+    const importInputRef = useRef<HTMLInputElement | null>(null);
+    const [importing, setImporting] = useState(false);
+    const [importMessage, setImportMessage] = useState("");
+    const [importError, setImportError] = useState(false);
 
     // Редактирование локации
     const [editingLocationId, setEditingLocationId] = useState<number | null>(
@@ -57,70 +65,71 @@ function Profile() {
         number | null
     >(null);
 
+    async function loadProfileData(userId: number, signal?: { cancelled: boolean }) {
+        try {
+            setLoading(true);
+
+            const locationsResponse = await api.get<Location[]>("/Location");
+
+            const myLocations = locationsResponse.data.filter(
+                (location) => location.userId === userId
+            );
+
+            const locationsWithMeasurements = await Promise.all(
+                myLocations.map(async (location) => {
+                    const measurementsResponse =
+                        await api.get<Measurement[]>(
+                            `/Measurement/location/${location.id}`
+                        );
+
+                    return {
+                        ...location,
+                        measurements: measurementsResponse.data,
+                    };
+                })
+            );
+
+            locationsWithMeasurements.sort((a, b) => {
+                const dateA = a.creationDate
+                    ? new Date(a.creationDate).getTime()
+                    : 0;
+
+                const dateB = b.creationDate
+                    ? new Date(b.creationDate).getTime()
+                    : 0;
+
+                return dateB - dateA;
+            });
+
+            if (!signal?.cancelled) {
+                setLocations(locationsWithMeasurements);
+                setError("");
+                setLoading(false);
+            }
+        } catch (err) {
+            console.error(err);
+
+            if (!signal?.cancelled) {
+                setError("Не удалось загрузить данные личного кабинета.");
+                setLoading(false);
+            }
+        }
+    }
+
     useEffect(() => {
         if (!user) {
             navigate("/login");
             return;
         }
 
-        let cancelled = false;
+        const signal = { cancelled: false };
 
-        async function load() {
-            try {
-                setLoading(true);
-
-                const locationsResponse = await api.get<Location[]>("/Location");
-
-                const myLocations = locationsResponse.data.filter(
-                    (location) => location.userId === user.id
-                );
-
-                const locationsWithMeasurements = await Promise.all(
-                    myLocations.map(async (location) => {
-                        const measurementsResponse =
-                            await api.get<Measurement[]>(
-                                `/Measurement/location/${location.id}`
-                            );
-
-                        return {
-                            ...location,
-                            measurements: measurementsResponse.data,
-                        };
-                    })
-                );
-
-                locationsWithMeasurements.sort((a, b) => {
-                    const dateA = a.creationDate
-                        ? new Date(a.creationDate).getTime()
-                        : 0;
-
-                    const dateB = b.creationDate
-                        ? new Date(b.creationDate).getTime()
-                        : 0;
-
-                    return dateB - dateA;
-                });
-
-                if (!cancelled) {
-                    setLocations(locationsWithMeasurements);
-                    setError("");
-                    setLoading(false);
-                }
-            } catch (err) {
-                console.error(err);
-
-                if (!cancelled) {
-                    setError("Не удалось загрузить данные личного кабинета.");
-                    setLoading(false);
-                }
-            }
-        }
-
-        void load();
+        void loadProfileData(user.id, signal);
 
         return () => {
-            cancelled = true;
+            signal.cancelled = true;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, navigate]);
 
     const allMeasurements = useMemo(() => {
@@ -421,6 +430,59 @@ function Profile() {
         }
     }
 
+    function handleImportClick() {
+        setImportMessage("");
+        setImportError(false);
+        importInputRef.current?.click();
+    }
+
+    async function handleImportFileSelected(
+        event: React.ChangeEvent<HTMLInputElement>
+    ) {
+        const file = event.target.files?.[0];
+
+        // Сбрасываем value, чтобы можно было повторно
+        // выбрать тот же файл.
+        event.target.value = "";
+
+        if (!file || !user) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            setImporting(true);
+            setImportError(false);
+            setImportMessage("");
+
+            const response = await api.post("/Location/import", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            const { locationName, measurementsCount } = response.data ?? {};
+
+            setImportMessage(
+                locationName
+                    ? `Импортировано: «${locationName}», замеров — ${measurementsCount ?? 0}.`
+                    : "Импорт завершён успешно."
+            );
+
+            await loadProfileData(user.id);
+        } catch (err) {
+            console.error(err);
+            setImportError(true);
+            setImportMessage(
+                "Не удалось импортировать файл. Проверьте, что это .xlsx, экспортированный из EcoMonitor."
+            );
+        } finally {
+            setImporting(false);
+        }
+    }
+
     function handleLogout() {
         logout();
         navigate("/login");
@@ -433,16 +495,54 @@ function Profile() {
     return (
         <div className="profile">
             <header className="profile-header">
-                <Link to="/home" className="profile-back">
-                    ← Карта
-                </Link>
+                <div className="profile-header-left">
+                    <EcoMonitorButton />
+
+                    <Link to="/home" className="profile-back">
+                        ← Карта
+                    </Link>
+                </div>
 
                 <h1 className="profile-title">Личный кабинет</h1>
 
-                <button className="profile-logout" onClick={handleLogout}>
-                    Выйти
-                </button>
+                <div className="profile-header-right">
+                    <ThemeToggle />
+
+                    <input
+                        ref={importInputRef}
+                        type="file"
+                        accept=".xlsx"
+                        style={{ display: "none" }}
+                        onChange={handleImportFileSelected}
+                    />
+
+                    <button
+                        type="button"
+                        className="profile-import"
+                        onClick={handleImportClick}
+                        disabled={importing}
+                    >
+                        {importing ? "Импорт..." : "Импорт из Excel"}
+                    </button>
+
+                    <button className="profile-logout" onClick={handleLogout}>
+                        Выйти
+                    </button>
+                </div>
             </header>
+
+            {importMessage && (
+                <p
+                    className={
+                        importError
+                            ? "profile-import-message profile-import-message-error"
+                            : "profile-import-message"
+                    }
+                    style={{ margin: "12px 24px 0" }}
+                >
+                    {importMessage}
+                </p>
+            )}
 
             <main className="profile-content">
                 <section className="profile-card">

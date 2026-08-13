@@ -3,7 +3,8 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #f4f6f5;
+    background: var(--app-bg);
+    transition: background 0.2s ease;
 }
 
 /* Верхняя плашка */
@@ -15,46 +16,79 @@
     justify-content: space-between;
     gap: 16px;
     padding: 0 24px;
-    background: #ffffff;
-    border-bottom: 1px solid #dfe5e2;
+    background: var(--app-surface);
+    border-bottom: 1px solid var(--app-border);
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.profile-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.profile-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .profile-back {
     font-size: 16px;
     font-weight: 500;
-    color: #68756f;
+    color: var(--app-text-secondary);
     text-decoration: none;
     white-space: nowrap;
 }
 
     .profile-back:hover {
-        color: #1d2924;
+        color: var(--app-text);
     }
 
 .profile-title {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
     flex: 1;
     text-align: center;
 }
 
-.profile-logout {
+.profile-logout,
+.profile-import {
     height: 32px;
     padding: 0 14px;
-    border: 1px solid #dfe5e2;
+    border: 1px solid var(--app-border);
     border-radius: 7px;
-    background: #ffffff;
-    color: #1d2924;
+    background: var(--app-surface);
+    color: var(--app-text);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
 }
 
-    .profile-logout:hover {
-        background: #edf2ef;
+    .profile-logout:hover,
+    .profile-import:hover:not(:disabled) {
+        background: var(--app-surface-hover);
+    }
+
+    .profile-import:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.profile-import {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-color: var(--app-accent);
+    color: var(--app-accent);
+}
+
+    .profile-import:hover:not(:disabled) {
+        background: var(--app-surface-hover);
     }
 
 /* Контент */
@@ -71,17 +105,33 @@
 }
 
 .profile-status {
-    color: #68756f;
+    color: var(--app-text-secondary);
     font-size: 14px;
 }
 
-.profile-error {
-    color: #b3261e;
+.profile-error,
+.profile-import-message {
     font-size: 14px;
-    background: #fbeceb;
-    border: 1px solid #f3cfcc;
     border-radius: 7px;
     padding: 10px 14px;
+}
+
+.profile-error {
+    color: var(--app-danger);
+    background: var(--app-danger-bg);
+    border: 1px solid var(--app-danger-border);
+}
+
+.profile-import-message {
+    color: var(--app-accent);
+    background: var(--app-surface-muted);
+    border: 1px solid var(--app-border);
+}
+
+.profile-import-message-error {
+    color: var(--app-danger);
+    background: var(--app-danger-bg);
+    border: 1px solid var(--app-danger-border);
 }
 
 /* Карточка профиля */
@@ -89,8 +139,8 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: #ffffff;
-    border: 1px solid #dfe5e2;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
     border-radius: 12px;
     padding: 20px;
 }
@@ -100,8 +150,8 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: #263a31;
-    color: #ffffff;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
     font-size: 22px;
     font-weight: 600;
     display: flex;
@@ -119,19 +169,19 @@
     margin: 0;
     font-size: 17px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .profile-email {
     margin: 0;
     font-size: 13px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .profile-id {
     margin: 0;
     font-size: 12px;
-    color: #9aa5a0;
+    color: var(--app-text-muted);
 }
 
 /* Статистика */
@@ -145,8 +195,8 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    background: #ffffff;
-    border: 1px solid #dfe5e2;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
     border-radius: 10px;
     padding: 14px 16px;
 }
@@ -154,7 +204,7 @@
 .stat-value {
     font-size: 20px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .stat-value-small {
@@ -163,7 +213,7 @@
 
 .stat-label {
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 /* Локации */
@@ -171,7 +221,7 @@
     margin: 0 0 12px;
     font-size: 15px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .empty-state {
@@ -179,16 +229,16 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    background: #ffffff;
-    border: 1px dashed #dfe5e2;
+    background: var(--app-surface);
+    border: 1px dashed var(--app-border);
     border-radius: 10px;
     padding: 20px;
-    color: #68756f;
+    color: var(--app-text-secondary);
     font-size: 14px;
 }
 
 .empty-state-link {
-    color: #263a31;
+    color: var(--app-accent);
     font-weight: 500;
     text-decoration: none;
 }
@@ -198,8 +248,8 @@
     }
 
 .location-card {
-    background: #ffffff;
-    border: 1px solid #dfe5e2;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
     border-radius: 10px;
     margin-bottom: 10px;
     overflow: hidden;
@@ -216,10 +266,11 @@
     border: none;
     cursor: pointer;
     text-align: left;
+    color: inherit;
 }
 
     .location-card-header:hover {
-        background: #f7f9f8;
+        background: var(--app-surface-hover);
     }
 
 .location-card-main {
@@ -232,12 +283,12 @@
 .location-name {
     font-size: 14px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .location-meta {
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .location-card-side {
@@ -249,18 +300,18 @@
 
 .location-count {
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
     white-space: nowrap;
 }
 
 .location-toggle {
     font-size: 16px;
-    color: #263a31;
+    color: var(--app-accent);
 }
 
 .location-card-body {
     padding: 0 16px 16px;
-    border-top: 1px solid #dfe5e2;
+    border-top: 1px solid var(--app-border);
 }
 
 .location-card-actions {
@@ -276,19 +327,19 @@
     padding: 0 14px;
     border: none;
     border-radius: 7px;
-    background: #263a31;
-    color: #ffffff;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
 }
 
     .export-button:hover {
-        background: #354d41;
+        background: var(--app-accent-hover);
     }
 
     .export-button:disabled {
-        background: #9aa5a0;
+        background: var(--app-text-muted);
         cursor: default;
     }
 
@@ -307,12 +358,12 @@
         padding: 8px 10px;
         text-align: left;
         white-space: nowrap;
-        border-bottom: 1px solid #edf2ef;
-        color: #1d2924;
+        border-bottom: 1px solid var(--app-border);
+        color: var(--app-text);
     }
 
     .measurements-table th {
-        color: #68756f;
+        color: var(--app-text-secondary);
         font-weight: 500;
     }
 
@@ -331,8 +382,8 @@
 .measurement-form {
     margin-top: 12px;
     padding: 18px;
-    background: #f7f9f8;
-    border: 1px solid #dfe5e2;
+    background: var(--app-surface-muted);
+    border: 1px solid var(--app-border);
     border-radius: 10px;
 }
 
@@ -344,18 +395,18 @@
     margin: 0;
     font-size: 15px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .measurement-form-description {
     margin: 5px 0 0;
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .measurement-form-section {
     padding: 16px 0;
-    border-top: 1px solid #dfe5e2;
+    border-top: 1px solid var(--app-border);
 }
 
     .measurement-form-section:first-of-type {
@@ -367,7 +418,7 @@
     margin: 0 0 12px;
     font-size: 13px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .measurement-form-grid {
@@ -382,11 +433,11 @@
     gap: 6px;
     font-size: 12px;
     font-weight: 500;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .measurement-required {
-    color: #b3261e;
+    color: var(--app-danger);
     margin-left: 3px;
 }
 
@@ -394,14 +445,14 @@
 .measurement-form-textarea {
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid #dfe5e2;
+    border: 1px solid var(--app-input-border);
     border-radius: 7px;
-    background: #ffffff;
-    color: #1d2924;
+    background: var(--app-input-bg);
+    color: var(--app-text);
     font-family: inherit;
     font-size: 13px;
     outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 
 .measurement-form-input {
@@ -417,12 +468,13 @@
 
     .measurement-form-input::placeholder,
     .measurement-form-textarea::placeholder {
-        color: #9aa5a0;
+        color: var(--app-text-muted);
     }
 
     .measurement-form-input:focus,
     .measurement-form-textarea:focus {
-        border-color: #263a31;
+        border-color: var(--app-input-focus-border);
+        background: var(--app-surface);
         box-shadow: 0 0 0 2px rgba(38, 58, 49, 0.08);
     }
 
@@ -431,7 +483,7 @@
     justify-content: flex-end;
     gap: 8px;
     padding-top: 16px;
-    border-top: 1px solid #dfe5e2;
+    border-top: 1px solid var(--app-border);
 }
 
 .add-measurement-button,
@@ -447,40 +499,40 @@
 }
 
 .add-measurement-button {
-    border: 1px solid #dfe5e2;
-    background: #ffffff;
-    color: #263a31;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-accent);
 }
 
     .add-measurement-button:hover {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .measurement-cancel-button {
-    border: 1px solid #dfe5e2;
-    background: #ffffff;
-    color: #68756f;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text-secondary);
 }
 
     .measurement-cancel-button:hover {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .measurement-submit-button {
     border: none;
-    background: #263a31;
-    color: #ffffff;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
 }
 
     .measurement-submit-button:hover {
-        background: #354d41;
+        background: var(--app-accent-hover);
     }
 
     .measurement-cancel-button:disabled,
     .measurement-submit-button:disabled {
-        background: #9aa5a0;
-        border-color: #9aa5a0;
-        color: #ffffff;
+        background: var(--app-text-muted);
+        border-color: var(--app-text-muted);
+        color: var(--app-accent-contrast);
         cursor: default;
     }
 
@@ -509,18 +561,18 @@
     }
 }
 .danger-button {
-    background: #ffffff;
-    border: 1px solid #f3c8c5;
-    color: #b3261e;
+    background: var(--app-surface);
+    border: 1px solid var(--app-danger-border);
+    color: var(--app-danger);
 }
 
     .danger-button:hover:not(:disabled) {
-        background: #fdecec;
+        background: var(--app-danger-bg);
     }
 
     .danger-button:disabled {
-        background: #ffffff;
-        color: #c98d89;
-        border-color: #eee1e0;
+        background: var(--app-surface);
+        color: var(--app-text-muted);
+        border-color: var(--app-border);
         cursor: default;
     }

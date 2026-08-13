@@ -4,12 +4,15 @@ import './index.css'
 import App from './App.tsx'
 
 import { AuthProvider } from './api/AuthContext'
+import { ThemeProvider } from './api/ThemeContext'
 import "ol/ol.css";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-        <AuthProvider>
-            <App />
-        </AuthProvider>
+        <ThemeProvider>
+            <AuthProvider>
+                <App />
+            </AuthProvider>
+        </ThemeProvider>
   </StrictMode>,
 )

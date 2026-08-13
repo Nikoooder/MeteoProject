@@ -1,9 +1,9 @@
 .mf-form {
     margin-top: 14px;
     padding: 16px;
-    border: 1px solid #dfe5e2;
+    border: 1px solid var(--app-border);
     border-radius: 10px;
-    background: #fbfcfb;
+    background: var(--app-surface-muted);
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -19,21 +19,21 @@
     margin: 0 0 4px;
     font-size: 14px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .mf-form-description {
     margin: 0;
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .mf-error {
     margin: 0;
     padding: 8px 12px;
     border-radius: 7px;
-    background: #fdecec;
-    color: #b3261e;
+    background: var(--app-danger-bg);
+    color: var(--app-danger);
     font-size: 12px;
 }
 
@@ -47,7 +47,7 @@
     margin: 0;
     font-size: 12px;
     font-weight: 600;
-    color: #68756f;
+    color: var(--app-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
@@ -63,11 +63,11 @@
     flex-direction: column;
     gap: 4px;
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .mf-required {
-    color: #b3261e;
+    color: var(--app-danger);
     margin-left: 2px;
 }
 
@@ -75,13 +75,14 @@
 .mf-form-textarea {
     box-sizing: border-box;
     padding: 8px 10px;
-    border: 1px solid #dfe5e2;
+    border: 1px solid var(--app-input-border);
     border-radius: 7px;
-    background: #ffffff;
-    color: #1d2924;
+    background: var(--app-input-bg);
+    color: var(--app-text);
     outline: none;
     font-size: 13px;
     font-family: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .mf-form-input {
@@ -94,7 +95,8 @@
 
     .mf-form-input:focus,
     .mf-form-textarea:focus {
-        border-color: #222e9a;
+        border-color: var(--app-input-focus-border);
+        background: var(--app-surface);
     }
 
 .mf-form-actions {
@@ -121,20 +123,20 @@
     }
 
 .mf-cancel-button {
-    background: #ffffff;
-    border: 1px solid #dfe5e2;
-    color: #1d2924;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    color: var(--app-text);
 }
 
     .mf-cancel-button:hover:not(:disabled) {
-        background: #edf2ef;
+        background: var(--app-surface-hover);
     }
 
 .mf-submit-button {
-    background: #263a31;
-    color: white;
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
 }
 
     .mf-submit-button:hover:not(:disabled) {
-        background: #354d41;
+        background: var(--app-accent-hover);
     }

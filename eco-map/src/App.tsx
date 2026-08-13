@@ -17,20 +17,11 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
 function App() {
 
-    const token = localStorage.getItem("token");
-
     return (
         <BrowserRouter>
             <Routes>
 
-                <Route
-                    path="/"
-                    element={
-                        token
-                            ? <Home />
-                            : <Register />
-                    }
-                />
+                <Route path="/" element={<Home />} />
 
                 <Route path="/login" element={<Login />} />
 

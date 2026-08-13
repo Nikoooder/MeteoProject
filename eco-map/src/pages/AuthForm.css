@@ -8,7 +8,7 @@
     align-items: center;
     background-image: linear-gradient(to right, rgb(134 87 255 / 35%), transparent), url("/auth_background.jpg");
     background-repeat: no-repeat, repeat;
-    background-size: auto; /* картинка не растягивается, дублируется по умолчанию */
+    background-size: auto; /* РєР°СЂС‚РёРЅРєР° РЅРµ СЂР°СЃС‚СЏРіРёРІР°РµС‚СЃСЏ, РґСѓР±Р»РёСЂСѓРµС‚СЃСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ */
     background-position: left top;
     box-sizing: border-box;
 }
@@ -22,9 +22,9 @@
     --bg-color: rgba(0, 0, 0, 0.25);
     --highlight: rgba(255, 255, 255, 0.75);
     --text: #ffffff;
-    --input-bg: rgba(100, 100, 100, 0.25);
-    --input-border: rgba(255, 255, 255, 0.2);
-    --input-focus: rgba(255, 255, 255, 0.3);
+    --input-bg: rgba(20, 20, 20, 0.35);
+    --input-border: rgba(255, 255, 255, 0.35);
+    --input-focus: rgba(255, 255, 255, 0.45);
 }
 
     .register-card .glass-filter,

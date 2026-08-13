@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import { api } from "../api/api";
 import MapView from "../components/map/MapView";
 import { useAuth } from "../api/AuthContext";
+import { useTheme } from "../api/ThemeContext";
 import LocationForm from "../components/locations/LocationForm";
 import LocationDetailsPanel from "../components/locations/LocationDetailsPanel";
 import LocationPopupSummary from "../components/map/LocationPopupSummary";
 import ObjectsListPanel from "../components/explorer/ObjectsListPanel";
+import EcoMonitorButton from "../components/common/EcoMonitorButton";
+import ThemeToggle from "../components/common/ThemeToggle";
 import type { Location } from "../types/Location";
 import type { Measurement } from "../types/Measurement";
 import "./Home.css";
@@ -15,6 +18,7 @@ type ExplorerTab = "map" | "list";
 
 function Home() {
     const { user } = useAuth();
+    const { theme } = useTheme();
 
     const [locations, setLocations] = useState<Location[]>([]);
 
@@ -154,11 +158,13 @@ function Home() {
 
             {/* Верхняя плашка */}
             <header className="home-header">
-                <h1 className="home-title">
-                    EcoMonitor
-                </h1>
+                <div className="home-header-left">
+                    <EcoMonitorButton />
+                </div>
 
                 <div className="home-header-actions">
+                    <ThemeToggle />
+
                     {user ? (
                         <Link to="/profile" className="home-profile-link">
                             <span className="home-profile-avatar">
@@ -182,6 +188,7 @@ function Home() {
                     onMapClick={handleMapClick}
                     onLocationClick={handleLocationClick}
                     selectedLocationId={selectedLocation?.id ?? null}
+                    theme={theme}
                     popupContent={
                         selectedLocation ? (
                             <LocationPopupSummary

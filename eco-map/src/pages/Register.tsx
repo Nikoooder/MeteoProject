@@ -1,6 +1,7 @@
 ﻿import { useState, useRef } from "react";
 import { api } from "../api/api";
 import { useNavigate } from "react-router-dom";
+import EcoMonitorButton from "../components/common/EcoMonitorButton";
 import "./AuthForm.css";
 
 function Register() {
@@ -77,6 +78,8 @@ function Register() {
 
     return (
         <div className="register-page">
+            <EcoMonitorButton variant="floating" />
+
             {/* SVG-фильтр для искажения стекла */}
             <svg style={{ display: "none" }}>
                 <filter id="glass-distortion">

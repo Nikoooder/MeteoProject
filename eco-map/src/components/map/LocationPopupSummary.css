@@ -4,6 +4,7 @@
     flex-direction: column;
     gap: 6px;
     font-family: inherit;
+    color: var(--app-text);
 }
 
 .lps-header {
@@ -16,13 +17,13 @@
 .lps-name {
     font-size: 14px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .lps-close {
     border: none;
     background: transparent;
-    color: #68756f;
+    color: var(--app-text-secondary);
     font-size: 16px;
     line-height: 1;
     cursor: pointer;
@@ -30,25 +31,25 @@
 }
 
     .lps-close:hover {
-        color: #1d2924;
+        color: var(--app-text);
     }
 
 .lps-coords {
     margin: 0;
     font-size: 11px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .lps-status {
     margin: 4px 0 0;
     font-size: 12px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .lps-time {
     margin: 0;
     font-size: 11px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
 
 .lps-grid {
@@ -64,16 +65,16 @@
     align-items: center;
     padding: 6px 4px;
     border-radius: 7px;
-    background: #f4f6f5;
+    background: var(--app-surface-muted);
 }
 
 .lps-metric-value {
     font-size: 14px;
     font-weight: 600;
-    color: #1d2924;
+    color: var(--app-text);
 }
 
 .lps-metric-label {
     font-size: 10px;
-    color: #68756f;
+    color: var(--app-text-secondary);
 }
