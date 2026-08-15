@@ -33,6 +33,9 @@ namespace EcoMonitor.Api.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<double>("Latitude")
                         .HasColumnType("double precision");
 
@@ -42,6 +45,9 @@ namespace EcoMonitor.Api.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -83,6 +89,9 @@ namespace EcoMonitor.Api.Migrations
 
                     b.Property<int>("CreatorId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<double?>("H2CO")
                         .HasColumnType("double precision");
@@ -127,6 +136,9 @@ namespace EcoMonitor.Api.Migrations
                     b.Property<double?>("TVOC")
                         .HasColumnType("double precision");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("WindDirection")
                         .HasColumnType("text");
 
@@ -138,6 +150,31 @@ namespace EcoMonitor.Api.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("Measurements");
+                });
+
+            modelBuilder.Entity("EcoMonitor.Api.Models.SyncQueue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ChangeDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EntityType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Operation")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SyncQueues");
                 });
 
             modelBuilder.Entity("EcoMonitor.Api.Models.User", b =>

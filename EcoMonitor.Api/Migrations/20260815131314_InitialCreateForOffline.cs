@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EcoMonitor.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateAgain : Migration
+    public partial class InitialCreateForOffline : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,11 +21,30 @@ namespace EcoMonitor.Api.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Latitude = table.Column<double>(type: "double precision", nullable: false),
                     Longitude = table.Column<double>(type: "double precision", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: false)
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Locations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SyncQueues",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EntityType = table.Column<int>(type: "integer", nullable: false),
+                    EntityId = table.Column<int>(type: "integer", nullable: false),
+                    Operation = table.Column<int>(type: "integer", nullable: false),
+                    ChangeDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SyncQueues", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -50,9 +69,11 @@ namespace EcoMonitor.Api.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     LocationId = table.Column<int>(type: "integer", nullable: false),
                     CreatorId = table.Column<int>(type: "integer", nullable: false),
-                    Comment = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: false),
+                    Comment = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: true),
                     SensorName = table.Column<string>(type: "text", nullable: false),
                     O2 = table.Column<double>(type: "double precision", nullable: true),
                     CO = table.Column<double>(type: "double precision", nullable: true),
@@ -89,6 +110,12 @@ namespace EcoMonitor.Api.Migrations
                 name: "IX_Measurements_LocationId",
                 table: "Measurements",
                 column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -96,6 +123,9 @@ namespace EcoMonitor.Api.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Measurements");
+
+            migrationBuilder.DropTable(
+                name: "SyncQueues");
 
             migrationBuilder.DropTable(
                 name: "Users");

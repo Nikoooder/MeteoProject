@@ -8,6 +8,8 @@ public class Location
     public double Longitude { get; set; }
     public DateTime CreationDate {get;set;}= DateTime.UtcNow;
     public int UserId { get; set; }
+    public DateTime? UpdatedAt{get;set;} 
+    public DateTime? DeletedAt{get;set;}
 
     public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
 }

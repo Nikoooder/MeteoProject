@@ -6,6 +6,8 @@ public class Measurement
 {
 	public int Id{get;set;}
 	public DateTime CreationDate{ get; set; } = DateTime.UtcNow;
+	public DateTime? UpdatedAt {get;set;}
+	public DateTime? DeletedAt {get;set;}
 	public int LocationId{get;set;}
 
 	public int CreatorId{get;set;}
