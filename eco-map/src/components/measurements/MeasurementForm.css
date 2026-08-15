@@ -1,0 +1,142 @@
+.mf-form {
+    margin-top: 14px;
+    padding: 16px;
+    border: 1px solid var(--app-border);
+    border-radius: 10px;
+    background: var(--app-surface-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.mf-form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.mf-form-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--app-text);
+}
+
+.mf-form-description {
+    margin: 0;
+    font-size: 12px;
+    color: var(--app-text-secondary);
+}
+
+.mf-error {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 7px;
+    background: var(--app-danger-bg);
+    color: var(--app-danger);
+    font-size: 12px;
+}
+
+.mf-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mf-form-section-title {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--app-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.mf-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.mf-form-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--app-text-secondary);
+}
+
+.mf-required {
+    color: var(--app-danger);
+    margin-left: 2px;
+}
+
+.mf-form-input,
+.mf-form-textarea {
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid var(--app-input-border);
+    border-radius: 7px;
+    background: var(--app-input-bg);
+    color: var(--app-text);
+    outline: none;
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.mf-form-input {
+    height: 36px;
+}
+
+.mf-form-textarea {
+    resize: vertical;
+}
+
+    .mf-form-input:focus,
+    .mf-form-textarea:focus {
+        border-color: var(--app-input-focus-border);
+        background: var(--app-surface);
+    }
+
+.mf-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.mf-cancel-button,
+.mf-submit-button {
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+}
+
+    .mf-cancel-button:disabled,
+    .mf-submit-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.mf-cancel-button {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    color: var(--app-text);
+}
+
+    .mf-cancel-button:hover:not(:disabled) {
+        background: var(--app-surface-hover);
+    }
+
+.mf-submit-button {
+    background: var(--app-accent);
+    color: var(--app-accent-contrast);
+}
+
+    .mf-submit-button:hover:not(:disabled) {
+        background: var(--app-accent-hover);
+    }

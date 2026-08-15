@@ -1,0 +1,150 @@
+.register-page {
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to right, rgb(134 87 255 / 35%), transparent), url("/auth_background.jpg");
+    background-repeat: no-repeat, repeat;
+    background-size: auto; /* картинка не растягивается, дублируется по умолчанию */
+    background-position: left top;
+    box-sizing: border-box;
+}
+
+.register-card {
+    position: relative;
+    width: 400px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+    --bg-color: rgba(0, 0, 0, 0.25);
+    --highlight: rgba(255, 255, 255, 0.75);
+    --text: #ffffff;
+    --input-bg: rgba(20, 20, 20, 0.35);
+    --input-border: rgba(255, 255, 255, 0.35);
+    --input-focus: rgba(255, 255, 255, 0.45);
+}
+
+    .register-card .glass-filter,
+    .register-card .glass-overlay,
+    .register-card .glass-specular {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+    }
+
+    .register-card .glass-filter {
+        z-index: 1;
+        backdrop-filter: blur(4px);
+        filter: url(#glass-distortion) saturate(120%) brightness(1.15);
+    }
+
+    .register-card .glass-overlay {
+        z-index: 2;
+        background: var(--bg-color);
+    }
+
+    .register-card .glass-specular {
+        z-index: 3;
+        /*box-shadow: inset 1px 1px 1px var(--highlight);*/
+        pointer-events: none;
+    }
+
+    .register-card .glass-content {
+        position: relative;
+        z-index: 4;
+        padding: 30px;
+        color: var(--text);
+        height: 100%;
+    }
+
+.register-title {
+    margin: 0 0 20px 0;
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        opacity: 0.85;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 10px;
+        color: #ffffff;
+        font-size: 16px;
+        transition: border-color 0.3s ease, background 0.3s ease;
+        box-sizing: border-box;
+    }
+
+        .form-group input:focus {
+            outline: none;
+            background: var(--input-focus);
+            border-color: var(--highlight);
+        }
+
+        .form-group input::placeholder {
+            color: #b3b3b3;
+        }
+
+.register-button {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+    .register-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+.register-message {
+    text-align: center;
+    margin-top: 15px;
+    color: #b6ffb6;
+}
+
+.register-error {
+    text-align: center;
+    margin-top: 15px;
+    color: #ffb6b6;
+}
+
+.register-link {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.register-link a {
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
