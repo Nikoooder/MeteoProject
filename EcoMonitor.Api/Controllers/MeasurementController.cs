@@ -76,23 +76,25 @@ public class MeasurementController :ControllerBase{
     _context.Measurements.Add(measurement);
     await _context.SaveChangesAsync();
 
+    _context.SyncQueues.Add(new SyncQueue{
+    EntityType = EntityType.Measurement,
+    EntityId = measurement.Id,
+    Operation = Operation.Create
+    });
+
+    await _context.SaveChangesAsync();
+
     return Ok(measurement);
     }
     [HttpPut("{id}")]
-    public async Task<ActionResult<Measurement>> UpdateMeasurementAsync(int id,CreateMeasurementRequest request){
-        var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id);
+    public async Task<ActionResult<Measurement>> UpdateMeasurementAsync(int id, CreateMeasurementRequest request){
+        var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id && m.CreatorId == CurrentUserId && m.DeletedAt == null);
 
         if (measurement == null)
             return NotFound("Measurement not found");
 
-        var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == measurement.LocationId &&l.UserId == CurrentUserId);
-
-        if (location == null)
-            return NotFound("Measurement not found");
-
         measurement.Comment = request.Comment;
         measurement.SensorName = request.SensorName;
-
         measurement.O2 = request.O2;
         measurement.CO = request.CO;
         measurement.SO2 = request.SO2;
@@ -101,42 +103,44 @@ public class MeasurementController :ControllerBase{
         measurement.CO2 = request.CO2;
         measurement.NO2 = request.NO2;
         measurement.H2CO = request.H2CO;
-
         measurement.PM25 = request.PM25;
         measurement.PM10 = request.PM10;
         measurement.TVOC = request.TVOC;
-
         measurement.WindSpeed = request.WindSpeed;
         measurement.WindDirection = request.WindDirection;
-
         measurement.MeasurementTime = request.MeasurementTime;
-
         measurement.Humidity = request.Humidity;
         measurement.AtmosphericPressure = request.AtmosphericPressure;
-
         measurement.Precipitation = request.Precipitation;
         measurement.PrecipitationPerHour = request.PrecipitationPerHour;
-
         measurement.AirTemperature = request.AirTemperature;
+        measurement.UpdatedAt = DateTime.UtcNow;
+
+        _context.SyncQueues.Add(new SyncQueue{
+            EntityType = EntityType.Measurement,
+            EntityId = measurement.Id,
+            Operation = Operation.Change
+        });
 
         await _context.SaveChangesAsync();
 
         return Ok(measurement);
     }
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteMeasurementAsync(int id)
-    {
-        var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id);
+    public async Task<IActionResult> DeleteMeasurementAsync(int id){
+        var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id && m.CreatorId == CurrentUserId && m.DeletedAt == null);
 
         if (measurement == null)
             return NotFound("Measurement not found");
 
-        var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == measurement.LocationId &&l.UserId == CurrentUserId);
+        measurement.DeletedAt = DateTime.UtcNow;
+        measurement.UpdatedAt = DateTime.UtcNow;
 
-        if (location == null)
-            return NotFound("Measurement not found");
-
-        _context.Measurements.Remove(measurement);
+        _context.SyncQueues.Add(new SyncQueue{
+            EntityType = EntityType.Measurement,
+            EntityId = measurement.Id,
+            Operation = Operation.Delete
+        });
 
         await _context.SaveChangesAsync();
 
@@ -147,6 +151,7 @@ public class MeasurementController :ControllerBase{
     public async Task<ActionResult<List<MeasurementResponse>>> GetAllAsync()
     {
         var measurements = await _context.Measurements
+            .Where(m => m.DeletedAt == null)
             .Select(m => new MeasurementResponse
             {
                 Id = m.Id,
@@ -190,7 +195,7 @@ public class MeasurementController :ControllerBase{
     public async Task<ActionResult<MeasurementResponse>> GetByIdAsync(int id)
     {
         var measurement = await _context.Measurements
-            .Where(m => m.Id == id)
+            .Where(m => m.Id == id && m.DeletedAt == null)
             .Select(m => new MeasurementResponse
             {
                 Id = m.Id,
@@ -238,7 +243,7 @@ public class MeasurementController :ControllerBase{
         int locationId)
     {
         var measurements = await _context.Measurements
-            .Where(m => m.LocationId == locationId)
+            .Where(m => m.LocationId == locationId && m.DeletedAt == null)
             .Select(m => new MeasurementResponse
             {
                 Id = m.Id,

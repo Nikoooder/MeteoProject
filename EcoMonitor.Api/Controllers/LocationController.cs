@@ -38,7 +38,7 @@ public class LocationController:ControllerBase{
     [HttpGet]
     [AllowAnonymous]
     public async Task<List<Location>> GetAllAsync(string? search = null, string? sortBy = null, string? sortOrder = null){
-        var query = _context.Locations.AsQueryable();
+        var query = _context.Locations.Where(l => l.DeletedAt == null).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(l => l.Name.ToLower().Contains(search.ToLower()));
@@ -55,7 +55,7 @@ public class LocationController:ControllerBase{
     [AllowAnonymous]
     public async Task<ActionResult<Location>> GetByIdAsync(int id)
     {
-        var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id);
+        var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id && l.DeletedAt == null);
 
         if (location == null)
             return NotFound();
@@ -70,12 +70,18 @@ public class LocationController:ControllerBase{
             Name = request.Name,
             Latitude = request.Latitude,
             Longitude = request.Longitude,
-            UserId = CurrentUserId
+            UserId = CurrentUserId,
+            UpdatedAt = DateTime.UtcNow
         };
 
         _context.Locations.Add(location);
-
         await _context.SaveChangesAsync();
+        
+        _context.SyncQueues.Add(new SyncQueue{
+        EntityType = EntityType.Location,
+        EntityId = location.Id,
+        Operation = Operation.Create
+    });
 
         if (request.Measurement != null){
             var measurement = new Measurement{
@@ -111,17 +117,24 @@ public class LocationController:ControllerBase{
             };
 
             _context.Measurements.Add(measurement);
-
             await _context.SaveChangesAsync();
-        }
+            
+            _context.SyncQueues.Add(new SyncQueue{
+            EntityType = EntityType.Measurement,
+            EntityId = measurement.Id,
+            Operation = Operation.Create
+        });
 
+            
+        }
+        await _context.SaveChangesAsync();
         return Ok(location);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAsync(int id, UpdateLocationRequest request)
     {
-        var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id && l.UserId == CurrentUserId);
+        var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id && l.UserId == CurrentUserId && l.DeletedAt == null);
 
         if (location == null)
             return NotFound();
@@ -130,6 +143,13 @@ public class LocationController:ControllerBase{
         location.Latitude = request.Latitude;
         location.Longitude = request.Longitude;
 
+        location.UpdatedAt = DateTime.UtcNow;
+        _context.SyncQueues.Add(new SyncQueue{
+            EntityType = EntityType.Location,
+            EntityId = location.Id,
+            Operation = Operation.Change
+        });
+
         await _context.SaveChangesAsync();
 
         return NoContent();
@@ -137,14 +157,21 @@ public class LocationController:ControllerBase{
 
     
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(int id)
-    {
-        var location = await _context.Locations.FirstOrDefaultAsync(l =>l.Id == id &&l.UserId == CurrentUserId);
+    public async Task<IActionResult> DeleteAsync(int id){
+        var location = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id && l.UserId == CurrentUserId && l.DeletedAt == null);
 
         if (location == null)
             return NotFound();
 
-        _context.Locations.Remove(location);
+        location.DeletedAt = DateTime.UtcNow;
+        location.UpdatedAt = DateTime.UtcNow;
+
+        _context.SyncQueues.Add(new SyncQueue{
+            EntityType = EntityType.Location,
+            EntityId = location.Id,
+            Operation = Operation.Delete
+        });
+
         await _context.SaveChangesAsync();
 
         return NoContent();
@@ -154,7 +181,7 @@ public class LocationController:ControllerBase{
     [HttpGet("{id}/export")]
     public async Task<IActionResult> ExportAsync(int id)
     {
-        var location = await _context.Locations.Include(l => l.Measurements).FirstOrDefaultAsync(l =>l.Id == id &&l.UserId == CurrentUserId);
+        var location = await _context.Locations.Include(l => l.Measurements).FirstOrDefaultAsync(l => l.Id == id && l.UserId == CurrentUserId && l.DeletedAt == null);
 
         if (location == null)
             return NotFound();
@@ -202,7 +229,7 @@ public class LocationController:ControllerBase{
 
         int row = headerRow + 1;
 
-        foreach (var measurement in location.Measurements)
+        foreach (var measurement in location.Measurements.Where(m => m.DeletedAt == null))
         {
             worksheet.Cell(row, 1).Value = measurement.Comment;
             worksheet.Cell(row, 2).Value = measurement.SensorName;
@@ -263,8 +290,9 @@ public class LocationController:ControllerBase{
                 l.UserId == CurrentUserId &&
                 l.Name == name &&
                 l.Latitude == latitude &&
-                l.Longitude == longitude);
-
+                l.Longitude == longitude &&
+                l.DeletedAt == null);
+        bool locationCreated = false;
 
         if (location == null)
         {
@@ -273,11 +301,17 @@ public class LocationController:ControllerBase{
                 Name = name,
                 Latitude = latitude,
                 Longitude = longitude,
-                UserId = CurrentUserId
+                UserId = CurrentUserId,
+                UpdatedAt = DateTime.UtcNow
             };
 
             _context.Locations.Add(location);
 
+            _context.SyncQueues.Add(new SyncQueue{
+            EntityType = EntityType.Location,
+            EntityId = location.Id,
+            Operation = Operation.Create
+        });
             await _context.SaveChangesAsync();
         }
 
@@ -292,9 +326,7 @@ public class LocationController:ControllerBase{
 
             if (measurementTime.HasValue)
             {
-                measurementTime = DateTime.SpecifyKind(
-                    measurementTime.Value,
-                    DateTimeKind.Utc);
+                measurementTime = DateTime.SpecifyKind(measurementTime.Value,DateTimeKind.Utc);
             }
 
             var measurement = new Measurement
@@ -302,6 +334,7 @@ public class LocationController:ControllerBase{
                 LocationId = location.Id,
                 CreatorId = CurrentUserId,
                 CreationDate = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
 
                 Comment = worksheet.Cell(row, 1).GetValue<string>(),
                 SensorName = worksheet.Cell(row, 2).GetValue<string>(),
@@ -334,7 +367,13 @@ public class LocationController:ControllerBase{
             };
 
             _context.Measurements.Add(measurement);
+            await _context.SaveChangesAsync();
 
+            _context.SyncQueues.Add(new SyncQueue{
+                EntityType = EntityType.Measurement,
+                EntityId = measurement.Id,
+                Operation = Operation.Create
+            });
             measurementsCount++;
             row++;
         }
@@ -346,6 +385,7 @@ public class LocationController:ControllerBase{
             message = "Import completed successfully.",
             locationId = location.Id,
             locationName = location.Name,
+            locationCreated,
             measurementsCount
         });
     }
