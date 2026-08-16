@@ -63,20 +63,71 @@ public class SyncController : ControllerBase
 
         var locations = await _context.Locations
             .Where(l => locationIds.Contains(l.Id) && l.UserId == CurrentUserId && l.DeletedAt == null)
+            .Select(l => new
+            {
+                l.Id,
+                l.ClientId,
+                l.Name,
+                l.Latitude,
+                l.Longitude,
+                l.CreationDate,
+                l.UserId,
+                l.UpdatedAt,
+                l.DeletedAt
+            })
             .ToListAsync();
 
         var measurements = await _context.Measurements
             .Where(m => measurementIds.Contains(m.Id) && m.CreatorId == CurrentUserId && m.DeletedAt == null)
+            .Select(m => new
+            {
+                m.Id,
+                m.ClientId,
+                m.LocationId,
+                m.CreatorId,
+                m.Comment,
+                m.SensorName,
+                m.CreationDate,
+                m.UpdatedAt,
+                m.DeletedAt,
+                m.O2,
+                m.CO,
+                m.SO2,
+                m.NO,
+                m.CH,
+                m.CO2,
+                m.NO2,
+                m.H2CO,
+                m.PM25,
+                m.PM10,
+                m.TVOC,
+                m.WindSpeed,
+                m.WindDirection,
+                m.MeasurementTime,
+                m.Humidity,
+                m.AtmosphericPressure,
+                m.Precipitation,
+                m.PrecipitationPerHour,
+                m.AirTemperature
+            })
             .ToListAsync();
 
         var deletedLocations = await _context.Locations
             .Where(l => deletedLocationIds.Contains(l.Id) && l.UserId == CurrentUserId)
-            .Select(l => l.Id)
+            .Select(l => new
+            {
+                l.Id,
+                l.ClientId
+            })
             .ToListAsync();
 
         var deletedMeasurements = await _context.Measurements
             .Where(m => deletedMeasurementIds.Contains(m.Id) && m.CreatorId == CurrentUserId)
-            .Select(m => m.Id)
+            .Select(m => new
+            {
+                m.Id,
+                m.ClientId
+            })
             .ToListAsync();
 
         return Ok(new

@@ -12,6 +12,10 @@ public class AppDbContext:DbContext{
 	protected override void OnModelCreating(ModelBuilder modelBuilder){
 		base.OnModelCreating(modelBuilder);
 		modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
-	}
+
+		modelBuilder.Entity<Location>().HasIndex(l => l.ClientId).IsUnique();
+
+		modelBuilder.Entity<Measurement>().HasIndex(m => m.ClientId).IsUnique();
+		}
 	
-}
+	}

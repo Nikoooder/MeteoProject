@@ -3,6 +3,7 @@ namespace EcoMonitor.Api.Models;
 public class Location
 {
     public int Id { get; set; }
+    public Guid ClientId { get; set; } = Guid.NewGuid();
     public string Name { get; set; }=null!;
     public double Latitude { get; set; }
     public double Longitude { get; set; }

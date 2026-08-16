@@ -67,6 +67,7 @@ public class LocationController:ControllerBase{
     public async Task<ActionResult<Location>> CreateAsync(CreateLocationRequest request)
     {
         var location = new Location{
+            ClientId = request.ClientId,
             Name = request.Name,
             Latitude = request.Latitude,
             Longitude = request.Longitude,
@@ -85,6 +86,7 @@ public class LocationController:ControllerBase{
 
         if (request.Measurement != null){
             var measurement = new Measurement{
+                ClientId = request.Measurement.ClientId,
                 LocationId = location.Id,
                 Comment = request.Measurement.Comment,
                 SensorName = request.Measurement.SensorName,

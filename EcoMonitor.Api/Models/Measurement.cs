@@ -5,6 +5,7 @@ namespace EcoMonitor.Api.Models;
 public class Measurement
 {
 	public int Id{get;set;}
+	public Guid ClientId { get; set; } = Guid.NewGuid();
 	public DateTime CreationDate{ get; set; } = DateTime.UtcNow;
 	public DateTime? UpdatedAt {get;set;}
 	public DateTime? DeletedAt {get;set;}

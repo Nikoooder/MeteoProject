@@ -2,6 +2,7 @@ namespace EcoMonitor.Api.DTO;
 
 public class CreateLocationRequest
 {
+    public Guid ClientId { get; set; }
     public string Name { get; set; } = "";
 
     public double Latitude { get; set; }

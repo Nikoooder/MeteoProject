@@ -1,6 +1,7 @@
 namespace EcoMonitor.Api.DTO;
 public class CreateMeasurementRequest
 {
+    public Guid ClientId { get; set; }
     public string SensorName { get; set; } = string.Empty;
     public string? Comment { get; set; }
     public double? O2 { get; set; }

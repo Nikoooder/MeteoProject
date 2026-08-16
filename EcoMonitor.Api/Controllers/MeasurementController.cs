@@ -19,7 +19,11 @@ public class MeasurementController :ControllerBase{
 
     [HttpPost("{locationId}/measurements")]
     public async Task<ActionResult<Measurement>> CreateMeasurementAsync(int locationId,CreateMeasurementRequest request){
-    var location = await _context.Locations.FindAsync(locationId);
+    var location = await _context.Locations
+            .FirstOrDefaultAsync(l =>
+                l.Id == locationId &&
+                l.UserId == CurrentUserId &&
+                l.DeletedAt == null);
 
     if (location == null)
         return NotFound("Location not found");
@@ -45,6 +49,7 @@ public class MeasurementController :ControllerBase{
 
     var measurement = new Measurement
     {
+        ClientId = request.ClientId,
         LocationId = locationId,
         CreatorId = CurrentUserId,
         CreationDate = DateTime.UtcNow,
@@ -75,11 +80,10 @@ public class MeasurementController :ControllerBase{
 
     _context.Measurements.Add(measurement);
     await _context.SaveChangesAsync();
-
     _context.SyncQueues.Add(new SyncQueue{
-    EntityType = EntityType.Measurement,
-    EntityId = measurement.Id,
-    Operation = Operation.Create
+        EntityType = EntityType.Measurement,
+        EntityId = measurement.Id,
+        Operation = Operation.Create
     });
 
     await _context.SaveChangesAsync();
@@ -91,6 +95,15 @@ public class MeasurementController :ControllerBase{
         var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id && m.CreatorId == CurrentUserId && m.DeletedAt == null);
 
         if (measurement == null)
+            return NotFound("Measurement not found");
+        
+        var location = await _context.Locations
+            .FirstOrDefaultAsync(l =>
+                l.Id == measurement.LocationId &&
+                l.UserId == CurrentUserId &&
+                l.DeletedAt == null);
+
+        if (location == null)
             return NotFound("Measurement not found");
 
         measurement.Comment = request.Comment;
@@ -131,6 +144,15 @@ public class MeasurementController :ControllerBase{
         var measurement = await _context.Measurements.FirstOrDefaultAsync(m => m.Id == id && m.CreatorId == CurrentUserId && m.DeletedAt == null);
 
         if (measurement == null)
+            return NotFound("Measurement not found");
+
+        var location = await _context.Locations
+            .FirstOrDefaultAsync(l =>
+                l.Id == measurement.LocationId &&
+                l.UserId == CurrentUserId &&
+                l.DeletedAt == null);
+
+        if (location == null)
             return NotFound("Measurement not found");
 
         measurement.DeletedAt = DateTime.UtcNow;
@@ -239,8 +261,7 @@ public class MeasurementController :ControllerBase{
     }
     [HttpGet("location/{locationId}")]
     [AllowAnonymous]
-    public async Task<ActionResult<List<MeasurementResponse>>> GetByLocationAsync(
-        int locationId)
+    public async Task<ActionResult<List<MeasurementResponse>>> GetByLocationAsync(int locationId)
     {
         var measurements = await _context.Measurements
             .Where(m => m.LocationId == locationId && m.DeletedAt == null)
