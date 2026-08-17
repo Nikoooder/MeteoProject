@@ -159,6 +159,15 @@ function LocationDetailsPanel({
         setMeasurementError("");
     }
 
+    function useCurrentLocation() {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+            position => setLocationCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+            () => setLocationError("Не удалось получить местоположение. Разрешите доступ к геолокации."),
+            { enableHighAccuracy: true, timeout: 10_000, maximumAge: 30_000 }
+        );
+    }
+
     async function handleCreateMeasurement(values: MeasurementFormValues) {
         try {
             setSavingMeasurement(true);
@@ -300,6 +309,7 @@ function LocationDetailsPanel({
                         })
                     }
                     initialName={location.name}
+                    onUseCurrentLocation={useCurrentLocation}
                     submitLabel={
                         savingLocation ? "Сохранение..." : "Сохранить"
                     }

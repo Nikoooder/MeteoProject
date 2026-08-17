@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using EcoMonitor.Api.DTO;
 
 namespace EcoMonitor.Api.Controllers;
 
@@ -20,6 +21,50 @@ public class SyncController : ControllerBase
     }
 
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    // The client keeps mutations in IndexedDB.  The newest UpdatedAt wins,
+    // which makes reconnecting several devices deterministic.
+    [HttpPost("push")]
+    public async Task<IActionResult> PushAsync(SyncPushRequest request)
+    {
+        var accepted = new List<Location>();
+        var created = new List<Location>();
+        foreach (var change in request.Changes.Where(c => c.EntityType == EntityType.Location))
+        {
+            var incomingTime = change.UpdatedAt.ToUniversalTime();
+            var location = await _context.Locations.FirstOrDefaultAsync(l => l.ClientId == change.ClientId);
+            if (location == null)
+            {
+                if (change.Operation == Operation.Delete) continue;
+                location = new Location
+                {
+                    ClientId = change.ClientId,
+                    Name = change.Name ?? "Без названия",
+                    Latitude = change.Latitude ?? 0,
+                    Longitude = change.Longitude ?? 0,
+                    UserId = CurrentUserId,
+                    UpdatedAt = incomingTime
+                };
+                _context.Locations.Add(location);
+                created.Add(location);
+            }
+            else if (location.UserId == CurrentUserId && (location.UpdatedAt ?? location.CreationDate) <= incomingTime)
+            {
+                location.Name = change.Name ?? location.Name;
+                location.Latitude = change.Latitude ?? location.Latitude;
+                location.Longitude = change.Longitude ?? location.Longitude;
+                location.UpdatedAt = incomingTime;
+                if (change.Operation == Operation.Delete) location.DeletedAt = incomingTime;
+                _context.SyncQueues.Add(new SyncQueue { EntityType = EntityType.Location, EntityId = location.Id, Operation = change.Operation });
+            }
+            accepted.Add(location);
+        }
+        await _context.SaveChangesAsync();
+        foreach (var location in created)
+            _context.SyncQueues.Add(new SyncQueue { EntityType = EntityType.Location, EntityId = location.Id, Operation = Operation.Create });
+        await _context.SaveChangesAsync();
+        return Ok(new { locations = accepted.Where(l => l.DeletedAt == null).Select(l => new { l.Id, l.ClientId, l.Name, l.Latitude, l.Longitude, l.CreationDate, l.UserId, l.UpdatedAt }) });
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetChangesAsync(DateTime since)

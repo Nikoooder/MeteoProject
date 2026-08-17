@@ -14,6 +14,8 @@ interface Props {
 
     initialName?: string;
     submitLabel?: string;
+    onUseCurrentLocation?: () => void;
+    locating?: boolean;
 }
 
 function LocationForm({
@@ -23,7 +25,9 @@ function LocationForm({
     onSubmit,
     onCancel,
     initialName = "",
-    submitLabel = "Сохранить"
+    submitLabel = "Сохранить",
+    onUseCurrentLocation,
+    locating = false
 }: Props) {
     const [name, setName] = useState(initialName);
 
@@ -83,6 +87,11 @@ function LocationForm({
                 </div>
 
                 <div className="location-form-buttons">
+                    {onUseCurrentLocation && (
+                        <button type="button" className="location-geolocation" onClick={onUseCurrentLocation} disabled={locating}>
+                            {locating ? "Определяем..." : "Моё местоположение"}
+                        </button>
+                    )}
                     {onCancel && (
                         <button
                             type="button"

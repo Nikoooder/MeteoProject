@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/api";
+import { createLocation, loadLocations as loadOfflineLocations, startSync } from "../api/offlineLocations";
 import MapView from "../components/map/MapView";
 import { useAuth } from "../api/AuthContext";
 import { useTheme } from "../api/ThemeContext";
@@ -40,13 +41,12 @@ function Home() {
     const [tab, setTab] = useState<ExplorerTab>("map");
 
     async function loadLocations() {
-        const response = await api.get<Location[]>("/Location");
-
-        setLocations(response.data);
+        setLocations(await loadOfflineLocations());
     }
 
     useEffect(() => {
-        loadLocations();
+        void loadLocations();
+        return startSync(() => void loadLocations());
     }, []);
 
     async function addLocation(name: string) {
@@ -54,13 +54,8 @@ function Home() {
             return;
         }
 
-        await api.post("/Location", {
-            name,
-            latitude: coordinates.latitude,
-            longitude: coordinates.longitude
-        });
-
-        await loadLocations();
+        const created = await createLocation(name, coordinates.latitude, coordinates.longitude);
+        setLocations(previous => [...previous.filter(l => l.id !== created.id), created]);
 
         setShowCreateForm(false);
 
@@ -68,6 +63,18 @@ function Home() {
             latitude: 0,
             longitude: 0
         });
+    }
+
+    function useCurrentLocation() {
+        if (!navigator.geolocation) {
+            alert("Геолокация не поддерживается этим устройством.");
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            position => setCoordinates({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+            () => alert("Не удалось получить местоположение. Проверьте разрешение браузера."),
+            { enableHighAccuracy: true, timeout: 10_000, maximumAge: 30_000 }
+        );
     }
 
     function handleMapClick(lat: number, lon: number) {
@@ -203,9 +210,8 @@ function Home() {
             </main>
 
 
-            {/* Панель исследователя */}
-            {user && (
-                <section className="explorer-panel explorer-panel-open">
+            {/* Панель объектов доступна и гостям; изменения требуют входа. */}
+            <section className="explorer-panel explorer-panel-open">
                     <div className="explorer-header">
 
                         <h2 className="explorer-title">
@@ -238,7 +244,7 @@ function Home() {
                                 </button>
                             </div>
 
-                            {tab === "map" && !selectedLocation && (
+                            {user && tab === "map" && !selectedLocation && (
                                 <button
                                     className="explorer-button"
                                     onClick={() =>
@@ -270,6 +276,7 @@ function Home() {
                                                     longitude: lon
                                                 });
                                             }}
+                                            onUseCurrentLocation={useCurrentLocation}
 
                                             submitLabel="Сохранить"
 
@@ -286,10 +293,7 @@ function Home() {
 
                                 {!showCreateForm && !selectedLocation && (
                                     <p className="explorer-selected-hint">
-                                        Кликните по карте, чтобы выбрать
-                                        координаты для новой локации, или
-                                        кликните по существующей метке, чтобы
-                                        посмотреть детали и замеры.
+                                        {user ? "Кликните по карте, чтобы выбрать координаты для новой локации, или кликните по существующей метке, чтобы посмотреть детали и замеры." : "Кликните по метке на карте или выберите объект из списка, чтобы посмотреть сведения и замеры."}
                                     </p>
                                 )}
 
@@ -297,7 +301,7 @@ function Home() {
                                     <LocationDetailsPanel
                                         key={selectedLocation.id}
                                         location={selectedLocation}
-                                        currentUserId={user.id}
+                                        currentUserId={user?.id}
                                         onLocationUpdated={
                                             handleLocationUpdated
                                         }
@@ -318,8 +322,7 @@ function Home() {
                         )}
 
                     </div>
-                </section>
-            )}
+            </section>
 
         </div>
     );

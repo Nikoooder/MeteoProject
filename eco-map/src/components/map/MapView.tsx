@@ -262,8 +262,9 @@ function MapView({
             previousCenterRef.current ??
             fromLonLat([74.5698, 42.8746]);
 
-        const initialZoom =
-            previousZoomRef.current ?? 13;
+        // A slightly wider initial view is more useful on a phone and avoids
+        // opening the map at a street-level scale on small screens.
+        const initialZoom = previousZoomRef.current ?? (window.innerWidth < 640 ? 11 : 13);
 
         const mapInstance =
             new Map({
@@ -278,7 +279,9 @@ function MapView({
                 view:
                     new View({
                         center: initialCenter,
-                        zoom: initialZoom
+                        zoom: initialZoom,
+                        minZoom: 3,
+                        maxZoom: 18
                     })
             });
 

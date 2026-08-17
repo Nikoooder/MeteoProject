@@ -268,6 +268,17 @@
     cursor: pointer;
 }
 
+.location-geolocation {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--app-border);
+    border-radius: 7px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-size: 13px;
+    cursor: pointer;
+}
+
     .location-cancel:hover {
         background: var(--app-surface-hover);
     }
@@ -333,4 +344,24 @@
     top: auto;
     left: 20px;
     bottom: 10px;
+}
+
+@media (max-width: 640px) {
+    .home-header { padding: 10px 12px; }
+    .home-profile-link { padding: 5px 9px; font-size: 13px; }
+    .home-profile-avatar { width: 24px; height: 24px; }
+    .explorer-panel { padding: 9px 12px; max-height: 46vh; overflow: auto; }
+    .explorer-header { align-items: flex-start; gap: 8px; }
+    .explorer-title { display: none; }
+    .explorer-actions { width: 100%; flex-wrap: wrap; justify-content: space-between; }
+    .explorer-tabs { flex: 1; }
+    .explorer-tab { flex: 1; padding: 0 8px; }
+    .explorer-button { padding: 8px 10px; font-size: 12px; }
+    .location-form { align-items: stretch; flex-wrap: wrap; gap: 8px; }
+    .location-field { width: calc(50% - 4px); }
+    .location-name { width: 100%; flex: auto; }
+    .location-form-buttons { width: 100%; flex-wrap: wrap; }
+    .location-form-buttons button { flex: 1; min-width: 120px; }
+    .map-popup { max-width: calc(100vw - 36px); padding: 9px; }
+    .ol-zoom { left: 10px; bottom: 8px; }
 }
