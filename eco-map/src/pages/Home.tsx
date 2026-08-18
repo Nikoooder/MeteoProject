@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api/api";
-import { createLocation, loadLocations as loadOfflineLocations, startSync } from "../api/offlineLocations";
+import { createLocation, loadLocations as loadOfflineLocations, loadMeasurements, startSync } from "../api/offlineData";
 import MapView from "../components/map/MapView";
 import { useAuth } from "../api/AuthContext";
 import { useTheme } from "../api/ThemeContext";
@@ -54,7 +53,7 @@ function Home() {
             return;
         }
 
-        const created = await createLocation(name, coordinates.latitude, coordinates.longitude);
+        const created = await createLocation(name, coordinates.latitude, coordinates.longitude, user?.id);
         setLocations(previous => [...previous.filter(l => l.id !== created.id), created]);
 
         setShowCreateForm(false);
@@ -104,11 +103,9 @@ function Home() {
         setSelectedLatest(null);
 
         try {
-            const response = await api.get<Measurement[]>(
-                `/Measurement/location/${clicked.id}`
-            );
+            const data = await loadMeasurements(full);
 
-            const latest = response.data.reduce<Measurement | null>(
+            const latest = data.reduce<Measurement | null>(
                 (acc, measurement) => {
                     const time =
                         measurement.measurementTime ??

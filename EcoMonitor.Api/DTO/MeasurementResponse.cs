@@ -3,6 +3,7 @@ namespace EcoMonitor.Api.DTO;
 public class MeasurementResponse
 {
     public int Id { get; set; }
+    public Guid ClientId { get; set; }
 
     public int LocationId { get; set; }
 
@@ -27,6 +28,7 @@ public class MeasurementResponse
     public string? WindDirection { get; set; }
 
     public DateTime CreationDate { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     public DateTime? MeasurementTime { get; set; }
 
     public double? Humidity { get; set; }

@@ -1,7 +1,13 @@
 import axios from "axios";
 
+// В обычной разработке фронтенд и бэкенд оба на localhost.
+// Для теста с телефона (или другого устройства в локальной сети) задайте
+// в eco-map/.env.local переменную:
+//   VITE_API_URL=http://<IP-вашего-компьютера-в-сети>:8080/api
+const baseURL = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api";
+
 export const api = axios.create({
-    baseURL: "http://localhost:8080/api",
+    baseURL,
     headers: {
         "Content-Type": "application/json"
     }

@@ -177,6 +177,7 @@ public class MeasurementController :ControllerBase{
             .Select(m => new MeasurementResponse
             {
                 Id = m.Id,
+                ClientId = m.ClientId,
                 LocationId = m.LocationId,
                 SensorName = m.SensorName,
                 Comment = m.Comment,
@@ -198,6 +199,7 @@ public class MeasurementController :ControllerBase{
                 WindDirection = m.WindDirection,
 
                 CreationDate = m.CreationDate,
+                UpdatedAt = m.UpdatedAt,
                 MeasurementTime = m.MeasurementTime,
 
                 Humidity = m.Humidity,
@@ -221,6 +223,7 @@ public class MeasurementController :ControllerBase{
             .Select(m => new MeasurementResponse
             {
                 Id = m.Id,
+                ClientId = m.ClientId,
                 LocationId = m.LocationId,
                 SensorName = m.SensorName,
                 Comment = m.Comment,
@@ -242,6 +245,7 @@ public class MeasurementController :ControllerBase{
                 WindDirection = m.WindDirection,
 
                 CreationDate = m.CreationDate,
+                UpdatedAt = m.UpdatedAt,
                 MeasurementTime = m.MeasurementTime,
 
                 Humidity = m.Humidity,
@@ -268,6 +272,7 @@ public class MeasurementController :ControllerBase{
             .Select(m => new MeasurementResponse
             {
                 Id = m.Id,
+                ClientId = m.ClientId,
                 LocationId = m.LocationId,
                 SensorName = m.SensorName,
                 Comment = m.Comment,
@@ -289,6 +294,7 @@ public class MeasurementController :ControllerBase{
                 WindDirection = m.WindDirection,
 
                 CreationDate = m.CreationDate,
+                UpdatedAt = m.UpdatedAt,
                 MeasurementTime = m.MeasurementTime,
 
                 Humidity = m.Humidity,

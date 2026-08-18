@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
-import { api } from "../../api/api";
 import type { Location } from "../../types/Location";
 import type { Measurement } from "../../types/Measurement";
+import {
+    createMeasurement,
+    deleteLocation,
+    deleteMeasurement,
+    loadMeasurements,
+    startSync,
+    updateLocation,
+    updateMeasurement,
+} from "../../api/offlineData";
 import LocationForm from "./LocationForm";
 import MeasurementForm from "../measurements/MeasurementForm";
 import MeasurementList from "../measurements/MeasurementList";
@@ -60,12 +68,10 @@ function LocationDetailsPanel({
             try {
                 setLoading(true);
 
-                const response = await api.get<Measurement[]>(
-                    `/Measurement/location/${location.id}`
-                );
+                const data = await loadMeasurements(location);
 
                 if (!cancelled) {
-                    setMeasurements(response.data);
+                    setMeasurements(data);
                 }
             } catch (err) {
                 console.error(err);
@@ -86,8 +92,13 @@ function LocationDetailsPanel({
             longitude: location.longitude,
         });
 
+        // Когда соединение появляется снова, очередь офлайн-изменений
+        // отправляется на сервер — подхватываем результат и обновляем список.
+        const stopSync = startSync(() => void load());
+
         return () => {
             cancelled = true;
+            stopSync();
         };
     }, [location.id, location.latitude, location.longitude]);
 
@@ -96,23 +107,19 @@ function LocationDetailsPanel({
             setSavingLocation(true);
             setLocationError("");
 
-            await api.put(`/Location/${location.id}`, {
+            const updated = await updateLocation(
+                location,
                 name,
-                latitude: locationCoords.latitude,
-                longitude: locationCoords.longitude,
-            });
+                locationCoords.latitude,
+                locationCoords.longitude
+            );
 
-            onLocationUpdated({
-                ...location,
-                name,
-                latitude: locationCoords.latitude,
-                longitude: locationCoords.longitude,
-            });
+            onLocationUpdated(updated);
 
             setEditingLocation(false);
         } catch (err) {
             console.error(err);
-            setLocationError("Не удалось обновить локацию.");
+            setLocationError("Не удалось обновить локацию. Изменения сохранены локально и будут отправлены при подключении к сети.");
         } finally {
             setSavingLocation(false);
         }
@@ -131,7 +138,7 @@ function LocationDetailsPanel({
             setDeletingLocation(true);
             setLocationError("");
 
-            await api.delete(`/Location/${location.id}`);
+            await deleteLocation(location);
 
             onLocationDeleted(location.id);
         } catch (err) {
@@ -173,12 +180,12 @@ function LocationDetailsPanel({
             setSavingMeasurement(true);
             setMeasurementError("");
 
-            const response = await api.post<Measurement>(
-                `/Measurement/${location.id}/measurements`,
+            const created = await createMeasurement(
+                location,
                 buildMeasurementRequest(values)
             );
 
-            setMeasurements((previous) => [...previous, response.data]);
+            setMeasurements((previous) => [...previous, created]);
             closeMeasurementForm();
         } catch (err) {
             console.error(err);
@@ -195,14 +202,15 @@ function LocationDetailsPanel({
             setSavingMeasurement(true);
             setMeasurementError("");
 
-            const response = await api.put<Measurement>(
-                `/Measurement/${editingMeasurement.id}`,
+            const updated = await updateMeasurement(
+                location,
+                editingMeasurement,
                 buildMeasurementRequest(values)
             );
 
             setMeasurements((previous) =>
                 previous.map((m) =>
-                    m.id === editingMeasurement.id ? response.data : m
+                    m.id === editingMeasurement.id ? updated : m
                 )
             );
 
@@ -223,7 +231,7 @@ function LocationDetailsPanel({
         try {
             setDeletingMeasurementId(measurement.id);
 
-            await api.delete(`/Measurement/${measurement.id}`);
+            await deleteMeasurement(measurement);
 
             setMeasurements((previous) =>
                 previous.filter((m) => m.id !== measurement.id)

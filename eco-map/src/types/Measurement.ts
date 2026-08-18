@@ -2,7 +2,11 @@
 
 export interface Measurement {
     id: number;
+    clientId?: string;
     locationId: number;
+    // Стабильная ссылка на clientId родительской локации. Нужна офлайн-очереди,
+    // чтобы связать замер с локацией, которая ещё не синхронизирована с сервером.
+    locationClientId?: string;
 
     sensorName: string;
     comment?: string | null;
@@ -24,6 +28,8 @@ export interface Measurement {
     windDirection?: string | null;
 
     creationDate: string;
+    updatedAt?: string | null;
+    deletedAt?: string | null;
     measurementTime?: string | null;
 
     humidity?: number | null;
