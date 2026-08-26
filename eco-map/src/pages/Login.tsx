@@ -26,8 +26,10 @@ function Login() {
             setError("");
             setMessage("");
 
+            const normalizedEmail = email.trim().toLowerCase();
+
             const response = await api.post("/auth/login", {
-                email,
+                email: normalizedEmail,
                 password
             });
 

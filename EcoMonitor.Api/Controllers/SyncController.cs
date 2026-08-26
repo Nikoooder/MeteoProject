@@ -57,7 +57,23 @@ public class SyncController : ControllerBase
                 location.Latitude = change.Latitude ?? location.Latitude;
                 location.Longitude = change.Longitude ?? location.Longitude;
                 location.UpdatedAt = incomingTime;
-                if (change.Operation == Operation.Delete) location.DeletedAt = incomingTime;
+                if (change.Operation == Operation.Delete)
+                {
+                    location.DeletedAt = incomingTime;
+
+                    // Замеры удаляются вместе с локацией — актуально и для
+                    // офлайн/ПВА-режима, когда удаление приходит через /Sync/push.
+                    var locationMeasurements = await _context.Measurements
+                        .Where(m => m.LocationId == location.Id && m.DeletedAt == null)
+                        .ToListAsync();
+
+                    foreach (var measurement in locationMeasurements)
+                    {
+                        measurement.DeletedAt = incomingTime;
+                        measurement.UpdatedAt = incomingTime;
+                        _context.SyncQueues.Add(new SyncQueue { EntityType = EntityType.Measurement, EntityId = measurement.Id, Operation = Operation.Delete });
+                    }
+                }
                 _context.SyncQueues.Add(new SyncQueue { EntityType = EntityType.Location, EntityId = location.Id, Operation = change.Operation });
             }
             acceptedLocations.Add(location);

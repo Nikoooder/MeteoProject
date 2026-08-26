@@ -22,12 +22,12 @@ export async function login(
         password
     });
 
-    localStorage.setItem(
+    sessionStorage.setItem(
         "token",
         response.data.token
     );
 
-    localStorage.setItem(
+    sessionStorage.setItem(
         "user",
         JSON.stringify(response.data.user)
     );

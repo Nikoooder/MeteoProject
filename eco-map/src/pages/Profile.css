@@ -377,6 +377,32 @@
     }
 }
 
+@media (max-width: 640px) {
+    .profile-header {
+        height: auto;
+        flex-wrap: wrap;
+        row-gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .profile-header-left {
+        flex-shrink: 0;
+    }
+
+    .profile-header-right {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .profile-logout,
+    .profile-import {
+        height: 30px;
+        padding: 0 10px;
+        font-size: 12px;
+    }
+}
+
 /* Форма замера */
 
 .measurement-form {

@@ -165,14 +165,35 @@ public class LocationController:ControllerBase{
         if (location == null)
             return NotFound();
 
-        location.DeletedAt = DateTime.UtcNow;
-        location.UpdatedAt = DateTime.UtcNow;
+        var deletedAt = DateTime.UtcNow;
+
+        location.DeletedAt = deletedAt;
+        location.UpdatedAt = deletedAt;
 
         _context.SyncQueues.Add(new SyncQueue{
             EntityType = EntityType.Location,
             EntityId = location.Id,
             Operation = Operation.Delete
         });
+
+        // Замеры удаляются вместе с локацией: помечаем их как удалённые
+        // и заносим в очередь синхронизации, чтобы офлайн-клиенты тоже
+        // подтянули удаление.
+        var measurements = await _context.Measurements
+            .Where(m => m.LocationId == location.Id && m.DeletedAt == null)
+            .ToListAsync();
+
+        foreach (var measurement in measurements)
+        {
+            measurement.DeletedAt = deletedAt;
+            measurement.UpdatedAt = deletedAt;
+
+            _context.SyncQueues.Add(new SyncQueue{
+                EntityType = EntityType.Measurement,
+                EntityId = measurement.Id,
+                Operation = Operation.Delete
+            });
+        }
 
         await _context.SaveChangesAsync();
 

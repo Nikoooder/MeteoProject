@@ -485,7 +485,7 @@ function Profile() {
 
     function handleLogout() {
         logout();
-        navigate("/login");
+        navigate("/");
     }
 
     if (!user) {
@@ -497,10 +497,6 @@ function Profile() {
             <header className="profile-header">
                 <div className="profile-header-left">
                     <EcoMonitorButton />
-
-                    <Link to="/home" className="profile-back">
-                        ← Карта
-                    </Link>
                 </div>
 
                 <h1 className="profile-title">Личный кабинет</h1>

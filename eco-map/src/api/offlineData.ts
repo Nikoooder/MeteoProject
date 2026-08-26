@@ -299,7 +299,7 @@ async function cacheSyncedMeasurements(locations: Location[], measurements: Meas
 }
 
 export async function synchronize(): Promise<void> {
-  if (!navigator.onLine || !localStorage.getItem("token")) return;
+  if (!navigator.onLine || !sessionStorage.getItem("token")) return;
   const changes = await readAll<PendingChange>(QUEUE);
   if (!changes.length) return;
   try {

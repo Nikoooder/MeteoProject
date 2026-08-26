@@ -29,7 +29,10 @@ export function AuthProvider({
 }) {
 
     const [user, setUser] = useState<User | null>(() => {
-        const savedUser = localStorage.getItem("user");
+        // Сессионное хранилище: токен «одноразовый» — он живёт, пока открыта
+        // вкладка/браузер, и удаляется, когда пользователь закрывает сайт.
+        // При следующем заходе понадобится повторный вход.
+        const savedUser = sessionStorage.getItem("user");
 
         return savedUser
             ? JSON.parse(savedUser)
@@ -38,12 +41,12 @@ export function AuthProvider({
 
 
     function login(user: User, token: string) {
-        localStorage.setItem(
+        sessionStorage.setItem(
             "token",
             token
         );
 
-        localStorage.setItem(
+        sessionStorage.setItem(
             "user",
             JSON.stringify(user)
         );
@@ -53,8 +56,8 @@ export function AuthProvider({
 
 
     function logout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
 
         setUser(null);
     }
