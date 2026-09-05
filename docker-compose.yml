@@ -51,6 +51,17 @@ services:
 
     depends_on:
       - postgres
+  
+  front:
+    build:
+      context: ./eco-map
+    container_name: front
+    ports:
+      - "1111:5173"
+
+    depends_on:
+      - postgres
+
 
 
 volumes:
