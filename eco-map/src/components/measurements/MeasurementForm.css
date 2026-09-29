@@ -13,6 +13,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    gap: 12px;
 }
 
 .mf-form-title {
@@ -140,3 +141,46 @@
     .mf-submit-button:hover:not(:disabled) {
         background: var(--app-accent-hover);
     }
+
+.mf-weather-button {
+    flex-shrink: 0;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 7px;
+    border: 1px solid var(--app-border-strong);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .mf-weather-button:hover:not(:disabled) {
+        background: var(--app-surface-hover);
+    }
+
+    .mf-weather-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.mf-weather-status {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text-secondary);
+}
+
+    .mf-weather-status a {
+        color: inherit;
+        text-decoration: underline;
+    }
+
+.mf-weather-error {
+    background: var(--app-danger-bg);
+    border-color: var(--app-danger-border);
+    color: var(--app-danger);
+}

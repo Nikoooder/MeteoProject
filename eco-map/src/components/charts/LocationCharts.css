@@ -1,0 +1,285 @@
+/* ---------- Переключатель «Таблица / Диаграммы» ---------- */
+
+.lc-switch {
+    display: inline-flex;
+    border: 1px solid var(--app-border);
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.lc-switch-button {
+    height: 28px;
+    padding: 0 12px;
+    border: none;
+    background: var(--app-surface);
+    color: var(--app-text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .lc-switch-button + .lc-switch-button {
+        border-left: 1px solid var(--app-border);
+    }
+
+    .lc-switch-button:hover:not(.lc-active) {
+        background: var(--app-surface-hover);
+    }
+
+    .lc-switch-button.lc-active {
+        background: var(--app-accent);
+        color: var(--app-accent-contrast);
+    }
+
+.lc-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 4px 0 8px;
+}
+
+    /* Если заголовка нет (страница профиля) — переключатель прижимается вправо. */
+    .lc-section-header > .lc-switch:only-child {
+        margin-left: auto;
+    }
+
+/* ---------- Блок диаграмм ---------- */
+
+.lc {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    color: var(--app-text);
+}
+
+.lc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+}
+
+.lc-presets,
+.lc-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.lc-chip {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+    background: var(--app-surface);
+    color: var(--app-text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+    .lc-chip:hover:not(.lc-active) {
+        background: var(--app-surface-hover);
+    }
+
+    .lc-chip.lc-active {
+        border-color: var(--app-accent);
+        background: var(--app-accent);
+        color: var(--app-accent-contrast);
+    }
+
+.lc-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--app-text-secondary);
+}
+
+    .lc-date input {
+        box-sizing: border-box;
+        height: 28px;
+        padding: 0 6px;
+        border: 1px solid var(--app-input-border);
+        border-radius: 7px;
+        background: var(--app-input-bg);
+        color: var(--app-text);
+        font-family: inherit;
+        font-size: 12px;
+    }
+
+        .lc-date input:focus {
+            outline: none;
+            border-color: var(--app-input-focus-border);
+        }
+
+.lc-summary {
+    margin: 0;
+    font-size: 12px;
+    color: var(--app-text-muted);
+}
+
+.lc-empty {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--app-text-secondary);
+}
+
+.lc-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--app-border);
+}
+
+.lc-tab {
+    padding: 6px 12px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--app-text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .lc-tab.lc-active {
+        border-bottom-color: var(--app-accent);
+        color: var(--app-text);
+    }
+
+    .lc-tab:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+.lc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.lc-card {
+    min-width: 0;
+    padding: 10px 12px 6px;
+    border: 1px solid var(--app-border);
+    border-radius: 10px;
+    background: var(--app-surface);
+}
+
+.lc-card-title {
+    margin: 0 0 6px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--app-text);
+}
+
+.lc-legend {
+    margin: 0 0 4px;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11px;
+    color: var(--app-text-secondary);
+}
+
+    .lc-legend li {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 6px;
+    }
+
+.lc-legend-label {
+    color: var(--app-text);
+    font-weight: 500;
+}
+
+.lc-legend-stats {
+    color: var(--app-text-muted);
+}
+
+/* ---------- SVG-график ---------- */
+
+.tsc {
+    position: relative;
+    width: 100%;
+}
+
+.tsc-svg {
+    display: block;
+    max-width: 100%;
+    /* Вертикальная прокрутка страницы по графику на телефоне остаётся рабочей. */
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.tsc-grid {
+    stroke: var(--app-border);
+    stroke-width: 1;
+}
+
+.tsc-tick {
+    fill: var(--app-text-secondary);
+    font-size: 10px;
+}
+
+.tsc-guide {
+    stroke: var(--app-border-strong);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+}
+
+.tsc-hover-dot {
+    stroke: var(--app-surface);
+    stroke-width: 2;
+}
+
+.tsc-dot {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin-right: 4px;
+    border-radius: 50%;
+}
+
+.tsc-tooltip {
+    text-align: left;
+    position: absolute;
+    z-index: 2;
+    max-width: 75%;
+    padding: 6px 8px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 7px;
+    background: var(--app-surface);
+    box-shadow: 0 2px 8px var(--app-shadow, rgba(0, 0, 0, 0.15));
+    font-size: 11px;
+    color: var(--app-text);
+    pointer-events: none;
+}
+
+.tsc-tooltip-time {
+    margin-bottom: 2px;
+    color: var(--app-text-secondary);
+}
+
+.tsc-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+    .tsc-tooltip-row .tsc-dot {
+        margin-right: 0;
+    }

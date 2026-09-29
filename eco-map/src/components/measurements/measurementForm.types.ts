@@ -1,4 +1,5 @@
 import type { Measurement } from "../../types/Measurement";
+import type { OpenMeteoSnapshot } from "../../api/openMeteo";
 
 export interface MeasurementFormValues {
     sensorName: string;
@@ -39,7 +40,7 @@ export function getCurrentDateTimeLocal() {
     return localDate.toISOString().slice(0, 16);
 }
 
-function toDateTimeLocal(value?: string | null) {
+export function toDateTimeLocal(value?: string | null) {
     if (!value) {
         return "";
     }
@@ -130,6 +131,66 @@ export function measurementToFormValues(
 
         airTemperature: toFieldString(measurement.airTemperature),
     };
+}
+
+// Направление ветра в градусах (откуда дует) -> 8-румбовая сторона света,
+// в том же формате, что вводят вручную (например, «СЗ»).
+export function windDegreesToCompass(degrees: number): string {
+    const sectors = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
+    const normalized = ((degrees % 360) + 360) % 360;
+
+    return sectors[Math.round(normalized / 45) % 8];
+}
+
+function roundToField(value: number | null, digits = 1): string | null {
+    if (value === null) {
+        return null;
+    }
+
+    return String(Number(value.toFixed(digits)));
+}
+
+// Преобразует ответ Open-Meteo в значения полей формы. В результат попадают
+// только те поля, по которым есть данные, — остальные остаются как были.
+export function openMeteoToFormValues(
+    snapshot: OpenMeteoSnapshot
+): Partial<MeasurementFormValues> {
+    const values: Partial<MeasurementFormValues> = {};
+
+    function set(field: keyof MeasurementFormValues, value: string | null) {
+        if (value !== null && value !== "") {
+            values[field] = value;
+        }
+    }
+
+    set("airTemperature", roundToField(snapshot.temperature));
+    set("humidity", roundToField(snapshot.humidity, 0));
+    set("atmosphericPressure", roundToField(snapshot.pressure));
+    set("windSpeed", roundToField(snapshot.windSpeed));
+
+    if (snapshot.windDirectionDegrees !== null) {
+        set(
+            "windDirection",
+            windDegreesToCompass(snapshot.windDirectionDegrees)
+        );
+    }
+
+    // Осадки за предыдущий час: мм и, соответственно, мм/ч.
+    set("precipitation", roundToField(snapshot.precipitation));
+    set("precipitationPerHour", roundToField(snapshot.precipitation));
+
+    // AIR_QUALITY
+    // set("pM25", roundToField(snapshot.pm25));
+    // set("pM10", roundToField(snapshot.pm10));
+    // set("co", roundToField(snapshot.co));
+    // set("nO2", roundToField(snapshot.no2));
+    // set("sO2", roundToField(snapshot.so2));
+
+    if (snapshot.time) {
+        set("measurementTime", toDateTimeLocal(snapshot.time) || null);
+    }
+
+    return values;
 }
 
 export function numberOrNull(value: string) {

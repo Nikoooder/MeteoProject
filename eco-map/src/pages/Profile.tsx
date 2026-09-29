@@ -7,6 +7,9 @@ import type { Measurement } from "../types/Measurement";
 import LocationForm from "../components/locations/LocationForm";
 import MeasurementForm from "../components/measurements/MeasurementForm";
 import MeasurementList from "../components/measurements/MeasurementList";
+import LocationCharts, {
+    MeasurementsViewSwitch,
+} from "../components/charts/LocationCharts";
 import {
     buildMeasurementRequest,
     measurementToFormValues,
@@ -30,6 +33,8 @@ function Profile() {
     const [error, setError] = useState("");
 
     const [openLocationId, setOpenLocationId] = useState<number | null>(null);
+    // Локации, для которых вместо таблицы замеров показаны диаграммы.
+    const [chartLocationIds, setChartLocationIds] = useState<number[]>([]);
 
     const [exportingId, setExportingId] = useState<number | null>(null);
 
@@ -785,6 +790,8 @@ function Profile() {
                                             location.id &&
                                             !editingMeasurement && (
                                                 <MeasurementForm
+                                                    latitude={location.latitude}
+                                                    longitude={location.longitude}
                                                     submitting={
                                                         creatingMeasurement
                                                     }
@@ -805,6 +812,8 @@ function Profile() {
                                                     key={editingMeasurement.id}
                                                     title="Изменить замер"
                                                     submitLabel="Сохранить изменения"
+                                                    latitude={location.latitude}
+                                                    longitude={location.longitude}
                                                     submitting={
                                                         creatingMeasurement
                                                     }
@@ -821,6 +830,38 @@ function Profile() {
                                                 />
                                             )}
 
+                                        <div className="lc-section-header">
+                                            <MeasurementsViewSwitch
+                                                showCharts={chartLocationIds.includes(
+                                                    location.id
+                                                )}
+                                                onChange={(showCharts) =>
+                                                    setChartLocationIds(
+                                                        (previous) =>
+                                                            showCharts
+                                                                ? [
+                                                                      ...previous,
+                                                                      location.id,
+                                                                  ]
+                                                                : previous.filter(
+                                                                      (id) =>
+                                                                          id !==
+                                                                          location.id
+                                                                  )
+                                                    )
+                                                }
+                                            />
+                                        </div>
+
+                                        {chartLocationIds.includes(
+                                            location.id
+                                        ) ? (
+                                            <LocationCharts
+                                                measurements={
+                                                    location.measurements
+                                                }
+                                            />
+                                        ) : (
                                         <MeasurementList
                                             measurements={
                                                 location.measurements
@@ -840,6 +881,7 @@ function Profile() {
                                             deletingId={deletingMeasurementId}
                                             emptyText="Для этой локации пока нет замеров."
                                         />
+                                        )}
                                     </div>
                                 )}
                             </div>

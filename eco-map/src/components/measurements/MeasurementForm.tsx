@@ -1,6 +1,10 @@
 import { useState } from "react";
 import type { MeasurementFormValues } from "./measurementForm.types";
-import { createEmptyMeasurementForm } from "./measurementForm.types";
+import {
+    createEmptyMeasurementForm,
+    openMeteoToFormValues,
+} from "./measurementForm.types";
+import { fetchOpenMeteoSnapshot } from "../../api/openMeteo";
 import "./MeasurementForm.css";
 
 interface Props {
@@ -12,6 +16,15 @@ interface Props {
     submitLabel?: string;
     title?: string;
     description?: string;
+    // Координаты локации — по ним кнопка подтягивает данные из Open-Meteo.
+    // Если не переданы, кнопка не показывается.
+    latitude?: number;
+    longitude?: number;
+}
+
+interface WeatherStatus {
+    kind: "success" | "warning" | "error";
+    text: string;
 }
 
 function MeasurementForm({
@@ -23,10 +36,71 @@ function MeasurementForm({
     submitLabel = "Создать замер",
     title = "Новый замер",
     description = "Укажите параметры измерения для этой локации.",
+    latitude,
+    longitude,
 }: Props) {
     const [form, setForm] = useState<MeasurementFormValues>(
         initialValues ?? createEmptyMeasurementForm()
     );
+
+    const [weatherLoading, setWeatherLoading] = useState(false);
+    const [weatherStatus, setWeatherStatus] = useState<WeatherStatus | null>(
+        null
+    );
+
+    const canFetchWeather =
+        typeof latitude === "number" && typeof longitude === "number";
+
+    async function handleFillFromOpenMeteo() {
+        if (typeof latitude !== "number" || typeof longitude !== "number") {
+            return;
+        }
+
+        if (!navigator.onLine) {
+            setWeatherStatus({
+                kind: "error",
+                text: "Нет соединения с интернетом — данные Open-Meteo недоступны.",
+            });
+            return;
+        }
+
+        try {
+            setWeatherLoading(true);
+            setWeatherStatus(null);
+
+            const snapshot = await fetchOpenMeteoSnapshot(latitude, longitude);
+            const values = openMeteoToFormValues(snapshot);
+
+            setForm((previous) => ({ ...previous, ...values }));
+
+            const time = snapshot.time
+                ? new Date(snapshot.time).toLocaleTimeString("ru-RU", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                  })
+                : null;
+
+            setWeatherStatus({
+                // AIR_QUALITY: при включении качества воздуха вернуть вариант с "warning":
+                // kind: snapshot.airQualityAvailable ? "success" : "warning",
+                kind: "success",
+                text:
+                    `Поля заполнены данными Open-Meteo${time ? ` на ${time}` : ""}.` +
+                    // (snapshot.airQualityAvailable
+                    //     ? ""
+                    //     : " Данные о качестве воздуха для этой точки получить не удалось.") +
+                    " Проверьте значения перед сохранением.",
+            });
+        } catch (err) {
+            console.error(err);
+            setWeatherStatus({
+                kind: "error",
+                text: "Не удалось получить данные из Open-Meteo. Попробуйте ещё раз позже.",
+            });
+        } finally {
+            setWeatherLoading(false);
+        }
+    }
 
     function updateField(field: keyof MeasurementFormValues, value: string) {
         setForm((previous) => ({
@@ -52,7 +126,39 @@ function MeasurementForm({
                     <h3 className="mf-form-title">{title}</h3>
                     <p className="mf-form-description">{description}</p>
                 </div>
+
+                {canFetchWeather && (
+                    <button
+                        type="button"
+                        className="mf-weather-button"
+                        onClick={handleFillFromOpenMeteo}
+                        disabled={weatherLoading || submitting}
+                        title="Подставить текущие погоду и качество воздуха по координатам локации"
+                    >
+                        {weatherLoading
+                            ? "Загрузка..."
+                            : "Заполнить из Open-Meteo"}
+                    </button>
+                )}
             </div>
+
+            {weatherStatus && (
+                <p className={`mf-weather-status mf-weather-${weatherStatus.kind}`}>
+                    {weatherStatus.text}
+                    {weatherStatus.kind !== "error" && (
+                        <>
+                            {" "}
+                            <a
+                                href="https://open-meteo.com/"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                Open-Meteo.com
+                            </a>
+                        </>
+                    )}
+                </p>
+            )}
 
             {error && <p className="mf-error">{error}</p>}
 

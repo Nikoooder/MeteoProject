@@ -13,6 +13,9 @@ import {
 import LocationForm from "./LocationForm";
 import MeasurementForm from "../measurements/MeasurementForm";
 import MeasurementList from "../measurements/MeasurementList";
+import LocationCharts, {
+    MeasurementsViewSwitch,
+} from "../charts/LocationCharts";
 import {
     buildMeasurementRequest,
     measurementToFormValues,
@@ -57,6 +60,7 @@ function LocationDetailsPanel({
         number | null
     >(null);
     const [measurementError, setMeasurementError] = useState("");
+    const [showCharts, setShowCharts] = useState(false);
 
     const isOwner =
         currentUserId !== undefined && currentUserId === location.userId;
@@ -330,6 +334,8 @@ function LocationDetailsPanel({
                 <MeasurementForm
                     title="Новый замер"
                     submitLabel="Создать замер"
+                    latitude={location.latitude}
+                    longitude={location.longitude}
                     submitting={savingMeasurement}
                     error={measurementError}
                     onSubmit={handleCreateMeasurement}
@@ -342,6 +348,8 @@ function LocationDetailsPanel({
                     key={editingMeasurement.id}
                     title="Изменить замер"
                     submitLabel="Сохранить изменения"
+                    latitude={location.latitude}
+                    longitude={location.longitude}
                     submitting={savingMeasurement}
                     error={measurementError}
                     initialValues={measurementToFormValues(
@@ -353,12 +361,21 @@ function LocationDetailsPanel({
             )}
 
             <div className="ldp-measurements">
-                <h4 className="ldp-measurements-title">
-                    Замеры ({measurements.length})
-                </h4>
+                <div className="lc-section-header">
+                    <h4 className="ldp-measurements-title">
+                        Замеры ({measurements.length})
+                    </h4>
+
+                    <MeasurementsViewSwitch
+                        showCharts={showCharts}
+                        onChange={setShowCharts}
+                    />
+                </div>
 
                 {loading ? (
                     <p className="ldp-loading">Загрузка...</p>
+                ) : showCharts ? (
+                    <LocationCharts measurements={measurements} />
                 ) : (
                     <MeasurementList
                         measurements={measurements}
